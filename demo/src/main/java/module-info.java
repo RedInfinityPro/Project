@@ -4,6 +4,7 @@ module com.example {
     requires java.desktop;
     requires javafx.graphics;
     requires javafx.base;
+    requires json.simple;
 
     opens com.example to javafx.fxml;
     exports com.example;

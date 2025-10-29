@@ -1,5 +1,5 @@
 package com.example;
-
+// import org.json.simple.JSONObject;
 import javafx.application.Application;
 import javafx.beans.Observable;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -20,8 +20,12 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.SecureRandom;
@@ -45,6 +49,10 @@ import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.json.simple.*;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
@@ -59,9 +67,9 @@ import javafx.scene.text.FontWeight;
  */
 public class App extends Application {
     private static Scene scene;
+    private static Stage main_stage;
     private static GridPane menuPane;
     private static Label displayLabel;
-    private Integer tutorialPage = 0;
 
     private VBox listContainer;
     private Integer counter = 1;
@@ -299,19 +307,19 @@ public class App extends Application {
         });
         return btn;
     }
-    
+
     private void checkCode(String displayString) {
         String decriptCode = decrypt(codeValue, secretkey, salt);
         String[] parts_decriptCode = decriptCode.split(",");
         String[] parts_displayString = displayString.split(",");
         if (displayString.equals(decriptCode)) {
-            points+=5;
+            points += 5;
             codeField.setText(decriptCode);
         } else {
-            for (int i=0; i<parts_displayString.length; i++) {
-                for (int j=0; j<parts_decriptCode.length; j++) {
+            for (int i = 0; i < parts_displayString.length; i++) {
+                for (int j = 0; j < parts_decriptCode.length; j++) {
                     if (parts_displayString[i].equals(parts_decriptCode[i])) {
-                        points+=0.1;
+                        points += 0.1;
                     }
                 }
             }
@@ -377,6 +385,7 @@ public class App extends Application {
         arrowLabel.setText(isVisible ? "^" : "v");
     }
 
+    // main menu
     private void ClearMenuScreen(String cutomiseTitle) {
         menuPane.getChildren().clear();
         // add label
@@ -387,54 +396,20 @@ public class App extends Application {
         menuPane.add(displayLabel, 0, 0);
     }
 
-    private void BuildMenu(Stage stage) {
+    private void BuildMenu() {
         ClearMenuScreen("Welcome");
-        Button newGameButton = CustomButton("New Game", "start_game", stage);
-        Button loadGameButton = CustomButton("Load Game", "load_game", stage);
-        Button settingsButton = CustomButton("Settings", "settings", stage);
-        Button tutorialButton = CustomButton("Tutorial", "tutorial", stage);
-        Button exitButton = CustomButton("Exit", "exit_game", stage);
+        Button newGameButton = CustomButton("New Game", "start_game");
+        Button loadGameButton = CustomButton("Load Game", "load_game");
+        Button settingsButton = CustomButton("Settings", "settings");
+        Button tutorialButton = CustomButton("Tutorial", "tutorial");
+        Button exitButton = CustomButton("Exit", "exit_game");
         Button[] buttons = { newGameButton, loadGameButton, settingsButton, tutorialButton, exitButton };
         for (int i = 0; i < buttons.length; i++) {
             menuPane.add(buttons[i], 0, i + 1);
         }
     }
 
-    private void BuildTutorial() {
-        ClearMenuScreen("Tutorial");
-        HBox buttonBox = new HBox(5);
-        Label displayPage = new Label();
-        displayPage.setText("Page: " + tutorialPage.toString());
-        Button backButton = new Button("<-");
-        backButton.setOnAction(e -> {
-            if (tutorialPage>0) {
-                tutorialPage-=1;
-            }
-        });
-        Button homeButton = new Button("*");
-        homeButton.setOnAction(e -> {
-            MainMenu(null);
-        });
-        Button fowordButton = new Button("->");
-        fowordButton.setOnAction(e -> {
-            if (tutorialPage<100) {
-                tutorialPage+=1;
-            }
-        });
-        buttonBox.getChildren().addAll(displayPage, backButton, homeButton, fowordButton);
-        menuPane.add(buttonBox, 0, 2);
-        Label display_text = new Label();
-        menuPane.add(display_text, 0, 3);
-        // pages
-        if (tutorialPage==0) {
-            display_text.setText("Page 0 | Table \nPage 1 | What are Levels");
-        } 
-        if (tutorialPage==1) {
-            display_text.setText("A level is...");
-        }
-    }
-
-    private Parent MainMenu(Stage stage) {
+    private Parent MainMenu() {
         menuPane = new GridPane();
         menuPane.setAlignment(Pos.CENTER);
         menuPane.setHgap(8);
@@ -443,7 +418,7 @@ public class App extends Application {
         menuPane.setStyle("-fx-background-color: #ffffff; -fx-background-radius: 10;");
         // display elements
         ClearMenuScreen("Welcome");
-        BuildMenu(stage);
+        BuildMenu();
         VBox displayBox = new VBox(20, menuPane);
         displayBox.setAlignment(Pos.CENTER);
         displayBox.setPadding(new Insets(40));
@@ -452,10 +427,10 @@ public class App extends Application {
         mainBox.setAlignment(Pos.CENTER);
         mainBox.setStyle("-fx-background-color: #e9ecef;");
         HBox.setHgrow(displayBox, Priority.ALWAYS);
-        return mainBox; 
+        return mainBox;
     }
 
-    private Button CustomButton(String text, String argument, Stage stage) {
+    private Button CustomButton(String text, String argument) {
         Button customButton = new Button(text);
         customButton.setPrefHeight(70);
         customButton.setPrefWidth(200);
@@ -468,36 +443,56 @@ public class App extends Application {
         customButton.setOnMouseExited(e -> customButton.setStyle("-fx-background-color: " + baseColor
                 + "; -fx-text-fill: black; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);"));
         customButton.setOnAction(e -> {
-            try {
-                ClearMenuScreen("");
-                if (argument.equals("load_game")) {
-                    displayLabel.setText("Load Game");
-                }
-                if (argument.equals("settings")) {
-                    displayLabel.setText("Settings");
-                }
-                if (argument.equals("tutorial")) {
-                    BuildTutorial();
-                }
-                if (argument.equals("exit_game")) {
-                    stage.close();
-                }
-                if (argument.equals("main_menu")) {
-                    BuildMenu(stage);
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
+            ClearMenuScreen("");
+            if (argument.equals("load_game")) {
+                BuildLoadGame();
+            }
+            if (argument.equals("settings")) {
+                displayLabel.setText("Settings");
+            }
+            if (argument.equals("tutorial")) {
+                displayLabel.setText("Tutorial");
+            }
+            if (argument.equals("exit_game")) {
+                main_stage.close();
+            }
+            if (argument.equals("main_menu")) {
+                BuildMenu();
             }
         });
         return customButton;
     }
-    
+
+    private void BuildLoadGame() {
+        displayLabel.setText("Load Game");
+        // read jason file
+        int y = 2;
+        try {
+            ReadJSON readJSON = new ReadJSON();
+            String stringData = readJSON.getJSONFromFile("saveFile.json");
+            JSONParser parser = new JSONParser();
+            Object object = parser.parse(stringData);
+            JSONArray jsonArray = (JSONArray)object;
+            for (Object item : jsonArray) {
+                JSONObject entry = (JSONObject) item;
+                String timeWritten = (String)entry.get("Time_Written");
+                Button loadButton = CustomButton(timeWritten, "load");
+                menuPane.add(loadButton, 0, y++);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Button backButton = CustomButton("Main Menu", "main_menu");
+        menuPane.add(backButton, 0, y++);
+    }
+
     @Override
     public void start(Stage stage) throws IOException {
         generateKeys(key_length, iteration_count, secretkey, salt);
-        scene = new Scene(MainMenu(stage), 900, 600);
+        scene = new Scene(MainMenu(), 900, 600);
         stage.setScene(scene);
         stage.show();
+        main_stage = stage;
     }
 
     public static void main(String[] args) {
