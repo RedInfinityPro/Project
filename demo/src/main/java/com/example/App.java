@@ -59,6 +59,10 @@ import javafx.scene.text.FontWeight;
  */
 public class App extends Application {
     private static Scene scene;
+    private static GridPane menuPane;
+    private static Label displayLabel;
+    private Integer tutorialPage = 0;
+
     private VBox listContainer;
     private Integer counter = 1;
     private TextField displayField;
@@ -373,10 +377,125 @@ public class App extends Application {
         arrowLabel.setText(isVisible ? "^" : "v");
     }
 
+    private void ClearMenuScreen(String cutomiseTitle) {
+        menuPane.getChildren().clear();
+        // add label
+        displayLabel = new Label();
+        displayLabel.setText(" " + cutomiseTitle);
+        displayLabel.setStyle(
+                "-fx-text-fill: black; -fx-font-size: 40px; -fx-font-weight: bold; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);");
+        menuPane.add(displayLabel, 0, 0);
+    }
+
+    private void BuildMenu(Stage stage) {
+        ClearMenuScreen("Welcome");
+        Button newGameButton = CustomButton("New Game", "start_game", stage);
+        Button loadGameButton = CustomButton("Load Game", "load_game", stage);
+        Button settingsButton = CustomButton("Settings", "settings", stage);
+        Button tutorialButton = CustomButton("Tutorial", "tutorial", stage);
+        Button exitButton = CustomButton("Exit", "exit_game", stage);
+        Button[] buttons = { newGameButton, loadGameButton, settingsButton, tutorialButton, exitButton };
+        for (int i = 0; i < buttons.length; i++) {
+            menuPane.add(buttons[i], 0, i + 1);
+        }
+    }
+
+    private void BuildTutorial() {
+        ClearMenuScreen("Tutorial");
+        HBox buttonBox = new HBox(5);
+        Label displayPage = new Label();
+        displayPage.setText("Page: " + tutorialPage.toString());
+        Button backButton = new Button("<-");
+        backButton.setOnAction(e -> {
+            if (tutorialPage>0) {
+                tutorialPage-=1;
+            }
+        });
+        Button homeButton = new Button("*");
+        homeButton.setOnAction(e -> {
+            MainMenu(null);
+        });
+        Button fowordButton = new Button("->");
+        fowordButton.setOnAction(e -> {
+            if (tutorialPage<100) {
+                tutorialPage+=1;
+            }
+        });
+        buttonBox.getChildren().addAll(displayPage, backButton, homeButton, fowordButton);
+        menuPane.add(buttonBox, 0, 2);
+        Label display_text = new Label();
+        menuPane.add(display_text, 0, 3);
+        // pages
+        if (tutorialPage==0) {
+            display_text.setText("Page 0 | Table \nPage 1 | What are Levels");
+        } 
+        if (tutorialPage==1) {
+            display_text.setText("A level is...");
+        }
+    }
+
+    private Parent MainMenu(Stage stage) {
+        menuPane = new GridPane();
+        menuPane.setAlignment(Pos.CENTER);
+        menuPane.setHgap(8);
+        menuPane.setVgap(8);
+        menuPane.setPadding(new Insets(20));
+        menuPane.setStyle("-fx-background-color: #ffffff; -fx-background-radius: 10;");
+        // display elements
+        ClearMenuScreen("Welcome");
+        BuildMenu(stage);
+        VBox displayBox = new VBox(20, menuPane);
+        displayBox.setAlignment(Pos.CENTER);
+        displayBox.setPadding(new Insets(40));
+        displayBox.setStyle("-fx-background-color: #e9ecef;");
+        HBox mainBox = new HBox(displayBox);
+        mainBox.setAlignment(Pos.CENTER);
+        mainBox.setStyle("-fx-background-color: #e9ecef;");
+        HBox.setHgrow(displayBox, Priority.ALWAYS);
+        return mainBox; 
+    }
+
+    private Button CustomButton(String text, String argument, Stage stage) {
+        Button customButton = new Button(text);
+        customButton.setPrefHeight(70);
+        customButton.setPrefWidth(200);
+        String baseColor = argument.equals("Clear") ? "white" : "white";
+        String hoverColor = argument.equals("Clear") ? "white" : "darkgray";
+        customButton.setStyle("-fx-background-color: " + baseColor
+                + "; -fx-text-fill: black; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);");
+        customButton.setOnMouseEntered(e -> customButton.setStyle("-fx-background-color: " + hoverColor
+                + "; -fx-text-fill: black; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 2);"));
+        customButton.setOnMouseExited(e -> customButton.setStyle("-fx-background-color: " + baseColor
+                + "; -fx-text-fill: black; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);"));
+        customButton.setOnAction(e -> {
+            try {
+                ClearMenuScreen("");
+                if (argument.equals("load_game")) {
+                    displayLabel.setText("Load Game");
+                }
+                if (argument.equals("settings")) {
+                    displayLabel.setText("Settings");
+                }
+                if (argument.equals("tutorial")) {
+                    BuildTutorial();
+                }
+                if (argument.equals("exit_game")) {
+                    stage.close();
+                }
+                if (argument.equals("main_menu")) {
+                    BuildMenu(stage);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        });
+        return customButton;
+    }
+    
     @Override
     public void start(Stage stage) throws IOException {
         generateKeys(key_length, iteration_count, secretkey, salt);
-        scene = new Scene(Build(), 900, 600);
+        scene = new Scene(MainMenu(stage), 900, 600);
         stage.setScene(scene);
         stage.show();
     }
