@@ -24,6 +24,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -90,23 +91,41 @@ public class GameFile {
         ScrollPane levelPane = new ScrollPane();
         levelPane.setFitToWidth(true);
         levelPane.setStyle("-fx-background: #f5f5f5; -fx-background-color: #f5f5f5; -fx-background-radius: 10;");
-        levelPane_listContainer = new VBox(8);
-        levelPane_listContainer.setPadding(new Insets(15));
-        levelPane_listContainer.setStyle("-fx-background-color: #f5f5f5;");
+        VBox topSection = new VBox(8);
+        topSection.setStyle("-fx-background: #f5f5f5;");
         Label levelTitle = new Label("Levels");
         levelTitle.setFont(App.historyFont);
         levelTitle.setStyle("-fx-text-fill: #333;");
         levelTitle.setPadding(new Insets(0, 0, 10, 0));
+        levelPane_listContainer = new VBox(8);
+        levelPane_listContainer.setPadding(new Insets(15));
+        levelPane_listContainer.setStyle("-fx-background-color: #f5f5f5;");
+        topSection.getChildren().addAll(levelTitle, levelPane_listContainer);
+        VBox.setVgrow(levelPane_listContainer, Priority.ALWAYS);
         StackPane mainMenuReturn = new StackPane();
-        mainMenuReturn.setStyle("-fx-border-color: black; -fx-background-radius: 8; -fx-border-radius: 10;");
-        mainMenuReturn.setPadding(new Insets(10));
+        mainMenuReturn.setStyle("-fx-border-color: black; -fx-background-color: #f5f5f5;; -fx-background-color-radius: 8; -fx-border-radius: 8; -fx-border-width: 2;");
+        mainMenuReturn.setPadding(new Insets(12));
+        VBox buttonWrapper = new VBox(mainMenuReturn);
+        buttonWrapper.setPadding(new Insets(10, 15, 15, 15));
+        buttonWrapper.setStyle("-fx-background-color: #f5f5f5;");
         Button mainMenuReturn_button = new Button("Return to main menu");
+        mainMenuReturn_button.setStyle("-fx-background-color: #f5f5f5;; -fx-cursor: hand;");
+        mainMenuReturn_button.setMaxWidth(Double.MAX_VALUE);
+        mainMenuReturn_button.setOnAction(e -> {
+            MenuFile.mainBox.getChildren().clear();
+            MenuFile menuFile = new MenuFile();
+            menuFile.MainMenu();
+            menuFile.BuildMenu();
+        });
         mainMenuReturn.getChildren().add(mainMenuReturn_button);
-        VBox container = new VBox(levelTitle, levelPane_listContainer, mainMenuReturn);
+        BorderPane container = new BorderPane();
         container.setStyle("-fx-background-color: #f5f5f5;");
+        container.setTop(topSection);
+        container.setBottom(buttonWrapper);
         levelPane.setContent(container);
         levelPane.setMinWidth(250);
         levelPane.prefWidth(250);
+        levelPane.setMaxWidth(250);
         return levelPane;
     }
 
@@ -153,7 +172,7 @@ public class GameFile {
         btnClear.setStyle(getButtonStyle("#ffc107", "#e0a800"));
         menuPane.add(btnBackspace, 2, 6);
         // remove items
-        MenuFile.mainBox.getChildren().removeAll();
+        MenuFile.mainBox.getChildren().clear();
         // add level and history
         MenuFile.displayBox = new VBox(menuPane);
         MenuFile.displayBox.setAlignment(Pos.CENTER);

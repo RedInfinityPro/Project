@@ -76,7 +76,7 @@ public class MenuFile {
         return customButton;
     }
 
-    private void BuildMenu() {
+    public void BuildMenu() {
         ClearMenuScreen("Welcome");
         Button newGameButton = CustomButton("New Game", "start_game");
         Button loadGameButton = CustomButton("Load Game", "load_game");
