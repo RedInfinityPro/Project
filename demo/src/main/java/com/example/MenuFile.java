@@ -27,8 +27,14 @@ public class MenuFile {
     private static final String saveFile_PATH = "demo\\src\\main\\java\\assets\\saveFile.json";
     private static final String tutorial_PATH = "demo\\src\\main\\java\\assets\\tutorial.txt";
 
-    private void ClearMenuScreen(String customizeTitle) {
+    public void ClearMenuScreen(String customizeTitle) {
         menuPane.getChildren().clear();
+        try {
+            mainBox.getChildren().remove(GameFile.historyPane);
+            mainBox.getChildren().remove(GameFile.levelPane);
+        } catch (Exception e) {
+            System.out.println("Player has not played the game yet this section." + e.getMessage());
+        }
         // add label
         displayLabel = new Label(customizeTitle);
         displayLabel.setStyle(

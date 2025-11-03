@@ -24,6 +24,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -38,14 +39,20 @@ public class GameFile {
     private Integer counter = 1;
     private TextField displayField;
     private String displayString = "";
+    public static ScrollPane historyPane;
+    public static ScrollPane levelPane;
     private Map<String, ArrayList<String>> historyDict = new HashMap<>();
     private ArrayList<String> subHistoryList = new ArrayList<>();
+    private Map<String, ArrayList<String>> levelDict = new HashMap<>();
+    private ArrayList<String> subLevelList = new ArrayList<>();
     private TextField codeField;
     private Label displayPoints;
     private String codeValue;
     private Double points = 0.0;
-    private Set<Integer> correctPositionsFound = new HashSet<>();
-    private int numberOfDigits;
+    private Integer wrongPoints = 0;
+    private Integer userLevel = 1;
+    private Integer userLevel_XP = 0;
+    private boolean guessed = false;
 
     private void CodeConfig_init() {
         try {
@@ -63,13 +70,13 @@ public class GameFile {
     private String generateCode() {
         CodeConfig_init();
         Long min = 0L;
-        Long max = 9L;
+        Long max = 9L * userLevel;
         Long randomNumber = min + (long) (Math.random() * ((max - min) + 1));
         return CodeConfig.encrypt(randomNumber.toString());
     }
 
     private ScrollPane HistoryPane() {
-        ScrollPane historyPane = new ScrollPane();
+        historyPane = new ScrollPane();
         historyPane.setFitToWidth(true);
         historyPane.setStyle("-fx-background: #f5f5f5; -fx-background-color: #f5f5f5; -fx-background-radius: 10;");
         historyPane_listContainer = new VBox(8);
@@ -88,7 +95,7 @@ public class GameFile {
     }
 
     private ScrollPane LevelPane() {
-        ScrollPane levelPane = new ScrollPane();
+        levelPane = new ScrollPane();
         levelPane.setFitToWidth(true);
         levelPane.setStyle("-fx-background: #f5f5f5; -fx-background-color: #f5f5f5; -fx-background-radius: 10;");
         VBox topSection = new VBox(8);
@@ -103,7 +110,8 @@ public class GameFile {
         topSection.getChildren().addAll(levelTitle, levelPane_listContainer);
         VBox.setVgrow(levelPane_listContainer, Priority.ALWAYS);
         StackPane mainMenuReturn = new StackPane();
-        mainMenuReturn.setStyle("-fx-border-color: black; -fx-background-color: #f5f5f5;; -fx-background-color-radius: 8; -fx-border-radius: 8; -fx-border-width: 2;");
+        mainMenuReturn.setStyle(
+                "-fx-border-color: black; -fx-background-color: #f5f5f5;; -fx-background-color-radius: 8; -fx-border-radius: 8; -fx-border-width: 2;");
         mainMenuReturn.setPadding(new Insets(12));
         VBox buttonWrapper = new VBox(mainMenuReturn);
         buttonWrapper.setPadding(new Insets(10, 15, 15, 15));
@@ -112,9 +120,9 @@ public class GameFile {
         mainMenuReturn_button.setStyle("-fx-background-color: #f5f5f5;; -fx-cursor: hand;");
         mainMenuReturn_button.setMaxWidth(Double.MAX_VALUE);
         mainMenuReturn_button.setOnAction(e -> {
-            MenuFile.mainBox.getChildren().clear();
+            MenuFile.mainBox.getChildren().remove(historyPane);
+            MenuFile.mainBox.getChildren().remove(levelPane);
             MenuFile menuFile = new MenuFile();
-            menuFile.MainMenu();
             menuFile.BuildMenu();
         });
         mainMenuReturn.getChildren().add(mainMenuReturn_button);
@@ -229,10 +237,10 @@ public class GameFile {
                     DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
                     String formattedDate = myDateObj.format(myFormatObj);
                     subHistoryList.add(displayString);
-                    historyPane_listContainer.getChildren().add(createHistorySection(formattedDate));
+                    double checkScore = checkCode(displayString);
+                    historyPane_listContainer.getChildren().add(createHistorySection(formattedDate, checkScore));
                     historyDict.put(formattedDate, subHistoryList);
                     subHistoryList.clear();
-                    checkCode(displayString);
                     displayString = "";
                 }
                 displayField.setText(displayString);
@@ -243,76 +251,61 @@ public class GameFile {
         return btn;
     }
 
-    private void checkCode(String displayString) {
+    private Double checkCode(String displayString) {
         String decryptCode = codeConfig.decrypt(codeValue);
-        String guess = displayString;
-        String targetNumber = decryptCode;
-        System.out.println(decryptCode);
-        if (guess.equals(targetNumber)) {
-            points += 1.00;
+        double roundScore = 0;
+        if (displayString.equals(decryptCode)) {
+            points += userLevel;
+            userLevel_XP += 1;
+            codeValue = generateCode();
+            codeField.setText(codeValue);
+            roundScore = 1.00;
         } else {
-            // Track which positions are correct
-            int correctPositions = 0;
-            Set<Integer> newCorrectPositions = new HashSet<>();
-            for (int i = 0; i < numberOfDigits; i++) {
-                if (guess.charAt(i) == targetNumber.charAt(i)) {
-                    correctPositions++;
-                    newCorrectPositions.add(i);
-                }
-            }
-            // Only count new correct positions for points
-            int newCorrectCount = 0;
-            for (int pos : newCorrectPositions) {
-                if (!correctPositionsFound.contains(pos)) {
-                    newCorrectCount++;
-                }
-            }
-            // Update the set of found positions
-            correctPositionsFound.addAll(newCorrectPositions);
-            // Count digits that exist in the number (but aren't in correct position)
-            int correctDigitsWrongPosition = 0;
-            Map<Character, Integer> targetDigitCount = new HashMap<>();
-            Map<Character, Integer> guessDigitCount = new HashMap<>();
-            // Count digits in target (excluding already correct positions)
-            for (int i = 0; i < numberOfDigits; i++) {
-                if (!newCorrectPositions.contains(i)) {
-                    char c = targetNumber.charAt(i);
-                    targetDigitCount.put(c, targetDigitCount.getOrDefault(c, 0) + 1);
-                }
-            }
-            // Count matching digits in guess (excluding correct positions)
-            for (int i = 0; i < numberOfDigits; i++) {
-                if (!newCorrectPositions.contains(i)) {
-                    char c = guess.charAt(i);
-                    if (targetDigitCount.containsKey(c) && targetDigitCount.get(c) > 0) {
-                        correctDigitsWrongPosition++;
-                        targetDigitCount.put(c, targetDigitCount.get(c) - 1);
-                    }
-                }
-            }
-            // Calculate points based on new discoveries only
-            double points = 0.0;
-            int halfDigits = numberOfDigits / 2;
-            // Points for correct positions (only new ones)
-            if (newCorrectCount >= halfDigits && newCorrectCount < numberOfDigits) {
-                points = 0.25;
-            } else if (newCorrectCount > 0) {
-                points = 0.10;
-            }
-            // If no new correct positions, give points for correct digits in wrong
-            // positions
-            if (points == 0.0) {
-                if (correctDigitsWrongPosition >= halfDigits) {
-                    points = 0.05;
-                } else if (correctDigitsWrongPosition > 0) {
-                    points = 0.01;
-                }
+            roundScore = calculatedScore(decryptCode, displayString);
+            if (roundScore > 0) {
+                points += roundScore;
+            } else {
+                wrongPoints++;
             }
         }
         displayPoints.setText("Points: " + points);
+        return roundScore;
     }
 
-    private VBox createHistorySection(String title) {
+    private static double calculatedScore(String randomNumber, String guess) {
+        double score = 0.0;
+        for (int i = 0; i < guess.length(); i++) {
+            char g = guess.charAt(i);
+            if (!Character.isDigit(g)) {
+                continue;
+            }
+            int digit = Character.getNumericValue(g);
+            boolean duplicate = guess.indexOf(g) != guess.lastIndexOf(g);
+            boolean prime = (digit == 2 || digit == 3 || digit == 5 || digit == 7);
+            if (i < randomNumber.length()) {
+                char r = randomNumber.charAt(i);
+                int randDigit = Character.getNumericValue(r);
+                if (digit == randDigit) {
+                    score += 0.50;
+                } else if (randomNumber.indexOf(g) != -1) {
+                    score += 0.25;
+                }
+                // odd even check
+                if ((digit % 2 == 0 && randDigit % 2 == 0) || (digit % 2 == 1 && randDigit % 2 == 1)) {
+                    score += 0.10;
+                }
+            }
+            if (duplicate) {
+                score += 0.05;
+            }
+            if (prime) {
+                score += 0.01;
+            }
+        }
+        return score;
+    }
+
+    private VBox createHistorySection(String title, Double checkScore) {
         VBox section = new VBox();
         section.setStyle(
                 "-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 3, 0, 0, 1);");
@@ -351,20 +344,60 @@ public class GameFile {
             subList.getChildren().add(emptyLabel);
         } else {
             for (String item : items) {
+                HBox itemEntry = new HBox(10);
+                itemEntry.setStyle("-fx-padding: 4 0 4 10;");
                 Label itemLabel = new Label("• " + item);
                 itemLabel.setFont(App.labelFont);
                 itemLabel.setStyle("-fx-text-fill: #495057; -fx-padding: 4 0 4 10;");
-                itemLabel.setOnMouseEntered(e -> itemLabel
+                Button pointsEaredType = new Button();
+                pointsEaredType.setText("?");
+                String[] buttonString = ButtonLogic(checkScore);
+                pointsEaredType.setStyle(buttonString[0]);
+                Tooltip hint = new Tooltip();
+                hint.setText(buttonString[1].toString());
+                pointsEaredType.setTooltip(hint);
+                itemEntry.setStyle("-fx-text-fill: #495057; -fx-padding: 4 0 4 10;");
+                itemEntry.setOnMouseEntered(e -> itemEntry
                         .setStyle("-fx-background-color: #e9ecef; -fx-padding: 4 0 4 10; -fx-cursor: hand;"));
-                itemLabel.setOnMouseExited(e -> itemLabel
+                itemEntry.setOnMouseExited(e -> itemEntry
                         .setStyle("-fx-text-fill: #495057; -fx-padding: 4 0 4 10; -fx-cursor: hand;"));
-                subList.getChildren().add(itemLabel);
+                itemEntry.getChildren().addAll(itemLabel, pointsEaredType);
+                subList.getChildren().add(itemEntry);
             }
         }
         header.setOnMouseClicked(e -> toggleSection(section, arrowLabel));
         section.getChildren().addAll(header, subList);
         section.setUserData(subList);
         return section;
+    }
+
+    private String[] ButtonLogic(Double checkScore) {
+        String returnColor;
+        String returnHint;
+        if (checkScore == 1.00) {
+            returnColor = "#228B22";
+            returnHint = "You guessed the correct number!";
+        } else if (checkScore == 0.50) {
+            returnColor = "#008000";
+            returnHint = "A digit was found in the correct location and correct value.";
+        } else if (checkScore == 0.25) {
+            returnColor = "#006400";
+            returnHint = "A digit was found in the number.";
+        } else if (checkScore == 0.10) {
+            returnColor = "#ADFF2F";
+            returnHint = "A digit in your guess matches the property of another digit.";
+        } else if (checkScore == 0.05) {
+            returnColor = "#7FFF00";
+            returnHint = "A digit appears more than once in the target number.";
+        } else if (checkScore == 0.01) {
+            returnColor = "#7CFC00";
+            returnHint = "If a digit is prime.";
+        } else {
+            returnColor = "#A9A9A9";
+            returnHint = "Sorry, no points where applied.";
+        }
+        String[] returnString = {"-fx-background-color: " + returnColor + ";", returnHint};
+        return returnString;
     }
 
     private VBox createLevelSection(String title) {

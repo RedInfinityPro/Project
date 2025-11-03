@@ -3,4 +3,4 @@
 3 - Add a function to the level goal segments to track back in history. (optional)
 4 - Allow the player to progress when the guess the code correctly.
 5 + Find out how to change senses. (Impotent.)
-6 - Add a pause button or main menu return function.
+6 + Add a pause button or main menu return function.

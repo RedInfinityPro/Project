@@ -1,7 +1,6 @@
 Welcome: Test your intuition and logic in this exciting challenge where each level pushes your guessing skills to the limit.
 Level: Each level tracks your ability to guess the correct number. With every level increase, the length of the randomly generated number doubles, making the game progressively more challenging.
-Points: The scoring uses a two decimal currency style format for precision. Correct full guess Earn 5 multiplied by the current level points. Correct digit in correct position Gain 0.10 points per unique digit. Correct digit in wrong position Receive 0.05 points per unique digit.
-Points Calculated: 0.01 pts one digit exists. 0.05 pts half of the digits exists. 0.10 pts one digit is in the correct position. 0.25 pts half of the digits in the correct position. 1.00 pts when the guess is correct.
+Points Calculated: 1.00 multiplied by the level in points if the number is correct. 0.50 - The guessed digit is exactly correct in both value and position. 0.25 - The guessed digit exists in the target number but is in the wrong spot. 0.10 - The guessed digit matches the property of the digit in the randomly generated number. (Even or Odd). 0.05 - The guessed digit appears more than once in the target number. 0.01 - The starting digit in the guess number is the same as the starting digit in the randomly generated number.
 Randomly generated number display: The target number is hash encrypted and gradually revealed as you guess digits correctly.
 User guess display: Shows your current guess in real time, regardless of length.
 Button display: Includes digits 0 though 9, the C (Clear) Resets your guess and starts a new history segment. ← (Backspace) Removes the last digit and logs the change in history.
