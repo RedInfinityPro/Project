@@ -21,14 +21,16 @@ import javafx.scene.layout.VBox;
 
 public class MenuFile {
     public static GridPane menuPane;
+    public static HBox mainBox;
+    public static VBox displayBox;
     private static Label displayLabel;
     private static final String saveFile_PATH = "demo\\src\\main\\java\\assets\\saveFile.json";
     private static final String tutorial_PATH = "demo\\src\\main\\java\\assets\\tutorial.txt";
 
-    private void ClearMenuScreen(String cutomiseTitle) {
+    private void ClearMenuScreen(String customizeTitle) {
         menuPane.getChildren().clear();
         // add label
-        displayLabel = new Label(cutomiseTitle);
+        displayLabel = new Label(customizeTitle);
         displayLabel.setStyle(
                 "-fx-text-fill: black; -fx-font-size: 40px; -fx-font-weight: bold; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);");
         displayLabel.setAlignment(Pos.CENTER);
@@ -36,7 +38,7 @@ public class MenuFile {
         menuPane.add(displayLabel, 0, 0, 2, 1);
     }
 
-    private Button CustomButton(String text, String argument) {
+    public Button CustomButton(String text, String argument) {
         Button customButton = new Button(text);
         customButton.setPrefHeight(65);
         customButton.setPrefWidth(200);
@@ -52,8 +54,8 @@ public class MenuFile {
         customButton.setOnAction(e -> {
             ClearMenuScreen("");
             if (argument.equals("start_game")) {
-                App.sceneType = false;
-                App.showGame();
+                GameFile gameFile = new GameFile();
+                gameFile.BuildGame(menuPane);
             }
             if (argument.equals("load_game")) {
                 BuildLoadGame();
@@ -68,8 +70,7 @@ public class MenuFile {
                 App.main_stage.close();
             }
             if (argument.equals("main_menu")) {
-                App.sceneType = true;
-                App.showMenu();
+                BuildMenu();
             }
         });
         return customButton;
@@ -98,11 +99,11 @@ public class MenuFile {
         // display elements
         ClearMenuScreen("Welcome");
         BuildMenu();
-        VBox displayBox = new VBox(menuPane);
+        displayBox = new VBox(menuPane);
         displayBox.setAlignment(Pos.CENTER);
         displayBox.setPadding(new Insets(40));
         displayBox.setStyle("-fx-background-color: #e9ecef;");
-        HBox mainBox = new HBox(displayBox);
+        mainBox = new HBox(displayBox);
         mainBox.setAlignment(Pos.CENTER);
         mainBox.setStyle("-fx-background-color: #e9ecef;");
         HBox.setHgrow(displayBox, Priority.ALWAYS);

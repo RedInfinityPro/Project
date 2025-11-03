@@ -1,0 +1,6 @@
+1 - In the level display add level goals and goal segments. The goal segments display each part of the level including the challenges.
+2 - Add a function to the history segments to track back in history.
+3 - Add a function to the level goal segments to track back in history. (optional)
+4 - Allow the player to progress when the guess the code correctly.
+5 + Find out how to change senses. (Impotent.)
+6 - Add a pause button or main menu return function.

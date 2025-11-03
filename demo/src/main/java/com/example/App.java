@@ -73,30 +73,16 @@ public class App extends Application {
     public static Scene scene;
     public static Stage main_stage;
     private static Parent mainRoot;
-    public static Boolean sceneType = true;
     // font
     public static final Font historyFont = Font.font("Arial", FontWeight.BOLD, 16);
     public static final Font displayFont = Font.font("Arial", FontWeight.NORMAL, 18);
     public static final Font arrowLabelFont = Font.font("Arial", FontWeight.BOLD, 14);
     public static final Font labelFont = Font.font("Arial", 12);
 
-    public static void showMenu() {
-        MenuFile menuFile = new MenuFile();
-        mainRoot = menuFile.MainMenu();
-    }
-
-    public static void showGame() {
-        GameFile gameFile = new GameFile();
-        mainRoot = gameFile.Build();
-    }
-
     @Override
     public void start(Stage stage) throws IOException {
-        if (sceneType) {
-            showMenu();
-        } else {
-            showGame();
-        }
+        MenuFile menuFile = new MenuFile();
+        mainRoot = menuFile.MainMenu();
         scene = new Scene(mainRoot, 900, 600);
         stage.setScene(scene);
         stage.show();
