@@ -7,6 +7,7 @@
 8 - Add some indication to show active subLevel and level.
 9 - Create an idea for the challenge levels.
 11 - Fix scrollbar UI for tutorials and add a scrollbar for history elements text.
+12 - Fix the hint button system, an issue was found in the missing hint button or it was found adding more than one non-found points. 
 
 # Denied
 1 * Allow the player to progress when the guess the code correctly. | Specifying into smaller chunks.
