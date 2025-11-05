@@ -74,10 +74,12 @@ public class App extends Application {
     public static Stage main_stage;
     private static Parent mainRoot;
     // font
-    public static final Font historyFont = Font.font("Arial", FontWeight.BOLD, 16);
-    public static final Font displayFont = Font.font("Arial", FontWeight.NORMAL, 18);
-    public static final Font arrowLabelFont = Font.font("Arial", FontWeight.BOLD, 14);
-    public static final Font labelFont = Font.font("Arial", 12);
+    public static final Font title_Font = Font.font("Arial", FontWeight.BOLD, 18);
+    public static final Font header_Font = Font.font("Arial", FontWeight.BOLD, 16);
+    public static final Font normal_Font = Font.font("Arial", FontWeight.NORMAL, 12);
+    public static String menuPane_colors = "-fx-background-color: #ffffff; ";
+    public static String displayBox_colors = "-fx-background-color: #e9ecef; ";
+    public static String mainBox_colors = "-fx-background-color: #e9ecef; ";
 
     @Override
     public void start(Stage stage) throws IOException {

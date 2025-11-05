@@ -84,7 +84,7 @@ public class SubLevel {
         codeField.setText(codeValue);
         codeField.setEditable(false);
         codeField.setPrefHeight(60);
-        codeField.setFont(App.displayFont);
+        codeField.setFont(App.header_Font);
         codeField.setPadding(new Insets(5));
         codeField.setStyle(
                 "-fx-background-color: darkgray; -fx-border-color: lightgray; -fx-border-width: 2; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: white; -fx-padding: 10;");
@@ -92,7 +92,7 @@ public class SubLevel {
         displayField = new TextField();
         displayField.setEditable(false);
         displayField.setPrefHeight(60);
-        displayField.setFont(App.displayFont);
+        displayField.setFont(App.header_Font);
         displayField.setStyle(
                 "-fx-background-color: #f8f9fa; -fx-border-color: #dee2e6; -fx-border-width: 2; -fx-border-radius: 8; -fx-background-radius: 8; -fx-text-fill: #212529; -fx-padding: 10;");
         menuPane.add(displayField, 0, 2, 3, 1);

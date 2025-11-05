@@ -69,7 +69,7 @@ public class SidePanels {
             header.setPadding(new Insets(12));
             header.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 8 8 0 0; -fx-cursor: hand;");
             Label arrowLabel = new Label("v");
-            arrowLabel.setFont(App.arrowLabelFont);
+            arrowLabel.setFont(App.normal_Font);
             arrowLabel.setStyle("-fx-text-fill: #6c757d");
             Button removeButton = new Button("Remove");
             removeButton.setStyle("-fx-background-color: red; -fx-text-fill: black; -fx-cursor: hand;");
@@ -79,7 +79,7 @@ public class SidePanels {
             removeButton.setOnMouseExited(e -> removeButton
                     .setStyle("-fx-background-color: red; -fx-text-fill: black; -fx-font-weight: normal;"));
             Label titleLabel = new Label(time.isEmpty() ? "(no title)" : time);
-            titleLabel.setFont(App.arrowLabelFont);
+            titleLabel.setFont(App.header_Font);
             titleLabel.setStyle("-fx-text-fill: #212529;");
             header.getChildren().addAll(arrowLabel, titleLabel, removeButton);
             header.setOnMouseClicked(e -> toggleSection(section, arrowLabel));
@@ -95,7 +95,7 @@ public class SidePanels {
             ArrayList<String> items = historyDict.getOrDefault(time, new ArrayList<>(subHistoryList));
             if (items.isEmpty()) {
                 Label emptyLabel = new Label("No history items");
-                emptyLabel.setFont(App.labelFont);
+                emptyLabel.setFont(App.normal_Font);
                 emptyLabel.setStyle("-fx-text-fill: #adb5bd; -fx-font-style: italic;");
                 subList.getChildren().add(emptyLabel);
             } else {
@@ -103,7 +103,7 @@ public class SidePanels {
                     HBox itemEntry = new HBox(10);
                     itemEntry.setStyle("-fx-padding: 4 0 4 10;");
                     Label itemLabel = new Label("• " + item);
-                    itemLabel.setFont(App.labelFont);
+                    itemLabel.setFont(App.normal_Font);
                     itemLabel.setStyle("-fx-text-fill: #495057; -fx-padding: 4 0 4 10;");
                     Button pointsEaredType = new Button();
                     pointsEaredType.setText("?");
@@ -173,10 +173,10 @@ public class SidePanels {
             header.setPadding(new Insets(12));
             header.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 8 8 0 0; -fx-cursor: hand;");
             Label arrowLabel = new Label("v");
-            arrowLabel.setFont(App.arrowLabelFont);
+            arrowLabel.setFont(App.normal_Font);
             arrowLabel.setStyle("-fx-text-fill: #6c757d");
             Label levelLabel = new Label(level.isEmpty() ? "(no title)" : level);
-            levelLabel.setFont(App.arrowLabelFont);
+            levelLabel.setFont(App.header_Font);
             levelLabel.setStyle("-fx-text-fill: #212529;");
             header.getChildren().addAll(arrowLabel, levelLabel);
             header.setOnMouseClicked(e -> toggleSection(section, arrowLabel));
@@ -192,7 +192,7 @@ public class SidePanels {
             ArrayList<String> items = levelDict.getOrDefault(level, new ArrayList<>(subLevelList));
             if (items.isEmpty()) {
                 Label emptyLabel = new Label("No Level items");
-                emptyLabel.setFont(App.labelFont);
+                emptyLabel.setFont(App.normal_Font);
                 emptyLabel.setStyle("-fx-text-fill: #adb5bd; -fx-font-style: italic;");
                 subList.getChildren().add(emptyLabel);
             } else {
@@ -200,7 +200,7 @@ public class SidePanels {
                     HBox itemEntry = new HBox(10);
                     itemEntry.setStyle("-fx-padding: 4 0 4 10;");
                     Label itemLabel = new Label("• " + item);
-                    itemLabel.setFont(App.labelFont);
+                    itemLabel.setFont(App.normal_Font);
                     itemLabel.setStyle("-fx-text-fill: #495057; -fx-padding: 4 0 4 10;");
                     itemEntry.setStyle("-fx-text-fill: #495057; -fx-padding: 4 0 4 10;");
                     itemEntry.setOnMouseEntered(e -> itemEntry
@@ -236,7 +236,7 @@ public class SidePanels {
         VBox topSection = new VBox(8);
         topSection.setStyle("-fx-background: #f5f5f5;");
         Label levelTitle = new Label("Levels");
-        levelTitle.setFont(App.historyFont);
+        levelTitle.setFont(App.title_Font);
         levelTitle.setStyle("-fx-text-fill: #333;");
         levelTitle.setPadding(new Insets(0, 0, 10, 0));
         levelPane_listContainer = new VBox(8);
@@ -279,7 +279,7 @@ public class SidePanels {
         historyPane_listContainer.setPadding(new Insets(15));
         historyPane_listContainer.setStyle("-fx-background-color: #f5f5f5;");
         Label historyTitle = new Label("History");
-        historyTitle.setFont(App.historyFont);
+        historyTitle.setFont(App.title_Font);
         historyTitle.setStyle("-fx-text-fill: #333;");
         historyTitle.setPadding(new Insets(0, 0, 10, 0));
         VBox container = new VBox(historyTitle, historyPane_listContainer);

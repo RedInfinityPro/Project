@@ -42,44 +42,6 @@ public class MenuFile {
         menuPane.add(displayLabel, 0, 0, 2, 1);
     }
 
-    public Button CustomButton(String text, String argument) {
-        Button customButton = new Button(text);
-        customButton.setPrefHeight(65);
-        customButton.setPrefWidth(200);
-        customButton.setPadding(new Insets(0, 20, 0, 30));
-        String baseColor = argument.equals("Clear") ? "white" : "white";
-        String hoverColor = argument.equals("Clear") ? "white" : "darkgray";
-        customButton.setStyle("-fx-background-color: " + baseColor
-                + "; -fx-text-fill: black; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);");
-        customButton.setOnMouseEntered(e -> customButton.setStyle("-fx-background-color: " + hoverColor
-                + "; -fx-text-fill: black; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 2);"));
-        customButton.setOnMouseExited(e -> customButton.setStyle("-fx-background-color: " + baseColor
-                + "; -fx-text-fill: black; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);"));
-        customButton.setOnAction(e -> {
-            ClearMenuScreen("");
-            if (argument.equals("start_game")) {
-                CenterPanel centerPanel = new CenterPanel(0, 0, 0, 0);
-                centerPanel.BuildCenter(menuPane);
-            }
-            if (argument.equals("load_game")) {
-                BuildLoadGame();
-            }
-            if (argument.equals("settings")) {
-                BuildSettings();
-            }
-            if (argument.equals("tutorial")) {
-                BuildTutorial();
-            }
-            if (argument.equals("exit_game")) {
-                App.main_stage.close();
-            }
-            if (argument.equals("main_menu")) {
-                BuildMenu();
-            }
-        });
-        return customButton;
-    }
-
     public void BuildMenu() {
         ClearMenuScreen("Welcome");
         Button newGameButton = CustomButton("New Game", "start_game");
@@ -99,17 +61,17 @@ public class MenuFile {
         menuPane.setHgap(15);
         menuPane.setVgap(12);
         menuPane.setPadding(new Insets(40));
-        menuPane.setStyle("-fx-background-color: #ffffff; -fx-background-radius: 10;");
+        menuPane.setStyle(App.menuPane_colors + "-fx-background-radius: 10;");
         // display elements
         ClearMenuScreen("Welcome");
         BuildMenu();
         displayBox = new VBox(menuPane);
         displayBox.setAlignment(Pos.CENTER);
         displayBox.setPadding(new Insets(40));
-        displayBox.setStyle("-fx-background-color: #e9ecef;");
+        displayBox.setStyle(App.displayBox_colors);
         mainBox = new HBox(displayBox);
         mainBox.setAlignment(Pos.CENTER);
-        mainBox.setStyle("-fx-background-color: #e9ecef;");
+        mainBox.setStyle(App.mainBox_colors);
         HBox.setHgrow(displayBox, Priority.ALWAYS);
         VBox.setVgrow(displayBox, Priority.ALWAYS);
         return mainBox;
@@ -272,5 +234,43 @@ public class MenuFile {
         scrollPane.setContent(descriptionLabel);
         card.getChildren().addAll(titleLabel, scrollPane);
         return card;
+    }
+
+    public Button CustomButton(String text, String argument) {
+        Button customButton = new Button(text);
+        customButton.setPrefHeight(65);
+        customButton.setPrefWidth(200);
+        customButton.setPadding(new Insets(0, 20, 0, 30));
+        String baseColor = argument.equals("Clear") ? "white" : "white";
+        String hoverColor = argument.equals("Clear") ? "white" : "darkgray";
+        customButton.setStyle("-fx-background-color: " + baseColor
+                + "; -fx-text-fill: black; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);");
+        customButton.setOnMouseEntered(e -> customButton.setStyle("-fx-background-color: " + hoverColor
+                + "; -fx-text-fill: black; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 2);"));
+        customButton.setOnMouseExited(e -> customButton.setStyle("-fx-background-color: " + baseColor
+                + "; -fx-text-fill: black; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);"));
+        customButton.setOnAction(e -> {
+            ClearMenuScreen("");
+            if (argument.equals("start_game")) {
+                CenterPanel centerPanel = new CenterPanel(0, 1, 1, 0);
+                centerPanel.BuildCenter(menuPane);
+            }
+            if (argument.equals("load_game")) {
+                BuildLoadGame();
+            }
+            if (argument.equals("settings")) {
+                BuildSettings();
+            }
+            if (argument.equals("tutorial")) {
+                BuildTutorial();
+            }
+            if (argument.equals("exit_game")) {
+                App.main_stage.close();
+            }
+            if (argument.equals("main_menu")) {
+                BuildMenu();
+            }
+        });
+        return customButton;
     }
 }
