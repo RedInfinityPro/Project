@@ -26,13 +26,15 @@ public class CenterPanel {
     // levels and challenge levels
     public static Integer level;
     public static Integer amount_challengeLevel;
+    public static Integer amount_subLevel;
     public static Integer currentLevel_XP;
     public static Integer maxLevel_XP;
     public static Label displayLevel;
 
-    CenterPanel(Integer level, Integer amount_challengeLevel, Integer currentLevel_XP, Integer maxLevel_XP) {
+    CenterPanel(Integer level, Integer amount_challengeLevel, Integer amount_subLevel, Integer currentLevel_XP, Integer maxLevel_XP) {
         this.level = level;
         this.amount_challengeLevel = amount_challengeLevel;
+        this.amount_subLevel = amount_subLevel;
         this.currentLevel_XP = currentLevel_XP;
         this.maxLevel_XP = maxLevel_XP;
     }
@@ -46,11 +48,11 @@ public class CenterPanel {
                 level += 1;
                 currentLevel_XP = 0;
                 maxLevel_XP = min + (int) (Math.random() * ((max - min) + 1));
-                for (int i = 1; i < maxLevel_XP; i++) {
-                    if (random.nextInt(2) == 1 && i > 0) {
+                for (int i = 0; i < maxLevel_XP; i++) {
+                    if (random.nextInt(2) == 1 && i > 1) {
                         SidePanels.subLevelList.add("Challenge level: " + amount_challengeLevel++);
                     } else {
-                        SidePanels.subLevelList.add("Sublevel: " + i);
+                        SidePanels.subLevelList.add("Sublevel: " + amount_subLevel++);
                     }
                 }
                 SidePanels.levelPane_listContainer.getChildren()

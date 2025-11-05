@@ -1,14 +1,13 @@
 # goals
 1 - Add a function to the history segments to track back in history and display the value on the main display. And write any changes to that history.
 2 - Add a function to the level goal segments to track back in levels. (optional)
-3 - Fix the checkCode function to make sure multiple attempts is not always marked as correct.
 5 - Animate changing the code hash and remove all history list.
 6 - Animate level changes.
 7 - Animate window changes.
 8 - Add some indication to show active subLevel and level.
 9 - Create an idea for the challenge levels.
-10 - For every point threshold meat, it adds new button element to the history segments. If it repeats any previous threshold meat it increase the multiplier to show how where the points are coming from.
 11 - Fix scrollbar UI for tutorials and add a scrollbar for history elements text.
+12 - Fix the hint button system, an issue was found in the missing hint button or it was found adding more than one non-found points. 
 
 # Denied
 1 * Allow the player to progress when the guess the code correctly. | Specifying into smaller chunks.
@@ -20,3 +19,5 @@
 3 + Fix the function of the clear and back button and fix the check function.
 4 + In the level display add level goals and goal segments. The goal segments display each part of the level including the challenges.
 5 + Fix the generate code function. (Impotent)
+6 + Fix the checkCode function to make sure multiple attempts is not always marked as correct.
+7 + For every point threshold meat, it adds new button element to the history segments. If it repeats any previous threshold meat it increase the multiplier to show how where the points are coming from.

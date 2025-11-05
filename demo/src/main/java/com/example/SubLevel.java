@@ -11,6 +11,7 @@ import java.util.Set;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
@@ -23,6 +24,7 @@ public class SubLevel {
     /// point system
     private Integer wrongPoints;
     public static Double points;
+    private boolean correct = false;
     // code setup
     private String codeValue;
     // visual elements
@@ -55,7 +57,7 @@ public class SubLevel {
     private String generateCode() {
         CodeConfig_init();
         Long min = 0L;
-        Long max = 9L;
+        Long max = 9L * CenterPanel.level;
         Long randomNumber = min + (long) (Math.random() * ((max - min) + 1));
         return CodeConfig.encrypt(randomNumber.toString());
     }
@@ -164,13 +166,19 @@ public class SubLevel {
                     String formattedDate = myDateObj.format(myFormatObj);
                     // commit history
                     SidePanels.subHistoryList.add(displayString);
+                    // calculate scores for each entry
+                    ArrayList<ScoreResult> scoreResults = new ArrayList<>();
                     double totalRoundScore = 0.0;
                     for (String entry : SidePanels.subHistoryList) {
-                        totalRoundScore += checkCode(entry);
+                        ScoreResult result = CheckCodeDetailed(entry);
+                        scoreResults.add(result);
+                        totalRoundScore += result.totalScore;
                     }
+                    // build history section
                     SidePanels.historyPane_listContainer.getChildren()
-                            .add(SidePanels.createHistorySection.BuildHistorySection(formattedDate, totalRoundScore));
+                            .add(SidePanels.createHistorySection.BuildHistorySection(formattedDate, scoreResults));
                     SidePanels.historyDict.put(formattedDate, new ArrayList<>(SidePanels.subHistoryList));
+                    SidePanels.historyScoreDict.put(formattedDate, scoreResults);
                     SidePanels.subHistoryList.clear();
                     displayString = "";
                 }
@@ -182,29 +190,52 @@ public class SubLevel {
         return btn;
     }
 
-    private Double checkCode(String displayString) {
-        String decryptCode = codeConfig.decrypt(codeValue);
-        System.out.println("" + decryptCode + " " + displayString);
-        double roundScore = 0;
-        if (displayString.equals(decryptCode)) {
-            points += CenterPanel.level;
-            CenterPanel.currentLevel_XP += 1;
-            roundScore = 1.00;
-        } else {
-            roundScore = calculatedScore(decryptCode, displayString);
-            if (roundScore > 0) {
-                points += roundScore;
-            } else {
-                wrongPoints++;
-            }
+    public static class ScoreResult {
+        public double totalScore;
+        public Map<String, Integer> thresholdCounts;
+
+        ScoreResult() {
+            this.totalScore = 0.0;
+            this.thresholdCounts = new HashMap<>();
         }
-        String pointsText = String.format("Points: %.2f", points);
-        displayPoints.setText(pointsText);
-        return roundScore;
+
+        public void addThreshold(String threshold, Integer count) {
+            thresholdCounts.put(threshold, thresholdCounts.getOrDefault(threshold, 0) + count);
+        }
     }
 
-    private static double calculatedScore(String randomNumber, String guess) {
-        double score = 0.0;
+    private ScoreResult CheckCodeDetailed(String displayString) {
+        String decryptCode = codeConfig.decrypt(codeValue);
+        System.out.println("" + decryptCode + " " + displayString);
+        ScoreResult result = new ScoreResult();
+        if (correct == false) {
+            if (displayString.equals(decryptCode)) {
+                points += 1.00;
+                result.totalScore = 1.00;
+                CenterPanel.currentLevel_XP += 1;
+                result.addThreshold("Correct", 1);
+                correct = true;
+                codeField.setText(decryptCode);
+            } else {
+                result = CalculatedScoreDetailed(decryptCode, displayString);
+                if (result.totalScore > 0) {
+                    points += result.totalScore;
+                } else {
+                    wrongPoints++;
+                }
+            }
+        } else {
+            result.totalScore = 0;
+            result.addThreshold("Correct_Exacts", 1);
+        }
+        // UI
+        String pointsText = String.format("Points: %.2f", points);
+        displayPoints.setText(pointsText);
+        return result;
+    }
+ 
+    private static ScoreResult CalculatedScoreDetailed(String randomNumber, String guess) {
+        ScoreResult result = new ScoreResult();
         Set<Integer> matchedPositions = new HashSet<>();
         for (int i = 0; i < guess.length(); i++) {
             char g = guess.charAt(i);
@@ -217,24 +248,34 @@ public class SubLevel {
             if (i < randomNumber.length()) {
                 char r = randomNumber.charAt(i);
                 int randDigit = Character.getNumericValue(r);
+                // exact match
                 if (digit == randDigit) {
-                    score += 0.50;
+                    result.totalScore += 0.50;
+                    result.addThreshold("Exists_Exact", 1);
                     matchedPositions.add(i);
                 } else if (randomNumber.indexOf(g) != -1 && !matchedPositions.contains(i)) {
-                    score += 0.25;
+                    result.totalScore += 0.25;
+                    result.addThreshold("Exists", 1);
+                    matchedPositions.add(i);
                 }
                 // odd/even check
                 if ((digit % 2 == 0 && randDigit % 2 == 0) || (digit % 2 == 1 && randDigit % 2 == 1)) {
-                    score += 0.10;
+                    result.totalScore += 0.10;
+                    result.addThreshold("Property_Exists", 1);
                 }
             }
+            // Duplicate
             if (duplicate) {
-                score += 0.05;
+                result.totalScore += 0.05;
+                result.addThreshold("Duplicate_Exists", 1);
             }
+            // prime
             if (prime) {
-                score += 0.01;
+                result.totalScore += 0.01;
+                result.addThreshold("Prime_Exists", 1);
             }
         }
-        return Math.min(score, 1.00);
+        result.totalScore = Math.min(result.totalScore, 1.00);
+        return result;
     }
 }

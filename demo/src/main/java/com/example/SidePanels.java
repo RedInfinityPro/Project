@@ -26,6 +26,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -44,6 +45,7 @@ public class SidePanels {
     // history and level
     public static Map<String, ArrayList<String>> historyDict = new HashMap<>();
     public static ArrayList<String> subHistoryList = new ArrayList<>();
+    public static Map<String, ArrayList<SubLevel.ScoreResult>> historyScoreDict = new HashMap<>();
     public static Map<String, ArrayList<String>> levelDict = new HashMap<>();
     public static ArrayList<String> subLevelList = new ArrayList<>();
     // display
@@ -61,7 +63,7 @@ public class SidePanels {
     }
 
     public static class createHistorySection {
-        public static VBox BuildHistorySection(String time, Double checkScore) {
+        public static VBox BuildHistorySection(String time, ArrayList<SubLevel.ScoreResult> scoreResults) {
             VBox section = new VBox();
             section.setStyle(
                     "-fx-background-color: white; -fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 8; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 3, 0, 0, 1);");
@@ -78,10 +80,26 @@ public class SidePanels {
                     .setStyle("-fx-background-color: darkred; -fx-text-fill: white; -fx-font-weight: bold;"));
             removeButton.setOnMouseExited(e -> removeButton
                     .setStyle("-fx-background-color: red; -fx-text-fill: black; -fx-font-weight: normal;"));
-            Label titleLabel = new Label(time.isEmpty() ? "(no title)" : time);
-            titleLabel.setFont(App.header_Font);
-            titleLabel.setStyle("-fx-text-fill: #212529;");
-            header.getChildren().addAll(arrowLabel, titleLabel, removeButton);
+            // calculate total score
+            double totalScore = 0.0;
+            for (SubLevel.ScoreResult sr : scoreResults) {
+                totalScore += sr.totalScore;
+            }
+            VBox titleBox = new VBox(5);
+            Label totalLabel = new Label();
+            Label timeLabel = new Label();
+            if (time.isEmpty()) {
+                totalLabel.setText("(no title)");
+            } else {
+                totalLabel.setText(String.format("Total: %.2f", totalScore));
+                timeLabel.setText(time);
+            }
+            totalLabel.setFont(App.header_Font);
+            totalLabel.setStyle("-fx-text-fill: #212529;");
+            timeLabel.setFont(App.normal_Font);
+            timeLabel.setStyle("-fx-text-fill: #212529;");
+            titleBox.getChildren().addAll(totalLabel, timeLabel);
+            header.getChildren().addAll(arrowLabel, titleBox, removeButton);
             header.setOnMouseClicked(e -> toggleSection(section, arrowLabel));
             header.setOnMouseEntered(e -> header
                     .setStyle("-fx-background-color: #e9ecef; -fx-background-radius: 8 8 0 0; -fx-cursor: hand;"));
@@ -99,25 +117,36 @@ public class SidePanels {
                 emptyLabel.setStyle("-fx-text-fill: #adb5bd; -fx-font-style: italic;");
                 subList.getChildren().add(emptyLabel);
             } else {
-                for (String item : items) {
+                for (Integer idx=0; idx<items.size(); idx++) {
+                    String item = items.get(idx);
+                    SubLevel.ScoreResult scoreResult = idx < scoreResults.size() ? scoreResults.get(idx) : new SubLevel.ScoreResult();
                     HBox itemEntry = new HBox(10);
                     itemEntry.setStyle("-fx-padding: 4 0 4 10;");
-                    Label itemLabel = new Label("• " + item);
+                    Label itemLabel = new Label("• " + item + String.format(" (%.2f pts)", scoreResult.totalScore));
                     itemLabel.setFont(App.normal_Font);
                     itemLabel.setStyle("-fx-text-fill: #495057; -fx-padding: 4 0 4 10;");
-                    Button pointsEaredType = new Button();
-                    pointsEaredType.setText("?");
-                    String[] buttonString = ButtonLogic(checkScore);
-                    pointsEaredType.setStyle(buttonString[0]);
-                    Tooltip hint = new Tooltip();
-                    hint.setText(buttonString[1].toString());
-                    pointsEaredType.setTooltip(hint);
+                    // Create hint buttons
+                    HBox buttonContainer = new HBox(5);
+                    for (Map.Entry<String, Integer> threshold : scoreResult.thresholdCounts.entrySet()) {
+                        Button hintButton = new Button();
+                        hintButton.setText("?");
+                        hintButton.setPrefSize(25, 25);
+                        hintButton.setMinSize(25, 25);
+                        hintButton.setMaxSize(25, 25);
+                        String[] buttonStyle = ButtonLogic(threshold.getKey());
+                        hintButton.setStyle(buttonStyle[0] + " -fx-font-size: 12px; -fx-padding: 0;");
+                        Tooltip hint = new Tooltip();
+                        String tooltipText = threshold.getValue() > 1 ? buttonStyle[1] + " (X" + threshold.getValue() + ")" : buttonStyle[1];
+                        hint.setText(tooltipText);
+                        hintButton.setTooltip(hint);
+                        buttonContainer.getChildren().add(hintButton);
+                    }
                     itemEntry.setStyle("-fx-text-fill: #495057; -fx-padding: 4 0 4 10;");
                     itemEntry.setOnMouseEntered(e -> itemEntry
                             .setStyle("-fx-background-color: #e9ecef; -fx-padding: 4 0 4 10; -fx-cursor: hand;"));
                     itemEntry.setOnMouseExited(e -> itemEntry
                             .setStyle("-fx-text-fill: #495057; -fx-padding: 4 0 4 10; -fx-cursor: hand;"));
-                    itemEntry.getChildren().addAll(itemLabel, pointsEaredType);
+                    itemEntry.getChildren().addAll(itemLabel, buttonContainer);
                     subList.getChildren().add(itemEntry);
                 }
             }
@@ -134,47 +163,45 @@ public class SidePanels {
             arrowLabel.setText(isVisible ? "^" : "v");
         }
 
-        private static String[] ButtonLogic(Double checkScore) {
+        private static String[] ButtonLogic(String thresholdType) {
             String returnColor;
-            ArrayList<String> hintMap = new ArrayList<>();
-            String returnHint = null;
-            if (checkScore >= 1.00) {
-                returnColor = "#1E90FF";
-                hintMap.add("You guessed the correct number!");
-            } else if (checkScore >= 0.50) {
-                returnColor = "#00C851";
-                hintMap.add("A digit was found in the correct location and correct value.");
-            } else if (checkScore >= 0.25) {
-                returnColor = "#007E33";
-                hintMap.add("A digit was found in the number.");
-            } else if (checkScore >= 0.10) {
-                returnColor = "#FFBB33";
-                hintMap.add("A digit in your guess matches the property of another digit.");
-            } else if (checkScore >= 0.05) {
-                returnColor = "#FF4444";
-                hintMap.add("A digit appears more than once in the target number.");
-            } else if (checkScore >= 0.01) {
-                returnColor = "#AA66CC";
-                hintMap.add("If a digit is prime.");
-            } else {
-                returnColor = "#B0B0B0";
-                hintMap.add("Sorry, no points where applied.");
-            }
-            Map<String, Integer> repeatedElements = countRepeatedElements(hintMap);
-            System.out.println(repeatedElements);
-            for (Map.Entry<String, Integer> entry : repeatedElements.entrySet()) {
-                returnHint = String.format("%s (x%s)", entry.getKey(), entry.getValue());
+            String returnHint;
+            switch (thresholdType) {
+                case "Correct":
+                    returnColor = "#1E90FF";
+                    returnHint = "You guessed the correct number!";
+                    break;
+                case "Correct_Exacts":
+                    returnColor = "#ff1effff";
+                    returnHint = "Correct number already found";
+                    break;
+                case "Exists_Exact":
+                    returnColor = "#00C851";
+                    returnHint = "A digit was found in the correct location and correct value.";
+                    break;
+                case "Exists":
+                    returnColor = "#007E33";
+                    returnHint = "A digit was found in the number.";
+                    break;
+                case "Property_Exists":
+                    returnColor = "#FFBB33";
+                    returnHint = "A digit in your guess matches the property of another digit.";
+                    break;
+                case "Duplicate_Exists":
+                    returnColor = "#FF4444";
+                    returnHint = "A digit appears more than once in the target number.";
+                    break;
+                case "Prime_Exists":
+                    returnColor = "#AA66CC";
+                    returnHint = "A digit has the same prime state.";
+                    break;
+                default:
+                    returnColor = "#B0B0B0";
+                    returnHint = "Sorry, no points where applied.";
+                    break;
             }
             String[] returnString = { "-fx-background-color: " + returnColor + ";", returnHint };
             return returnString;
-        }
-
-        private static <T> Map<T, Integer> countRepeatedElements(ArrayList<T> list) {
-            Map<T, Integer> frequencies = new HashMap<>();
-            for (T element : list) {
-                frequencies.put(element, frequencies.getOrDefault(element, 0) + 1);
-            }
-            return frequencies;
         }
     }
 
