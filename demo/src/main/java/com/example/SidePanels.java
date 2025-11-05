@@ -136,31 +136,45 @@ public class SidePanels {
 
         private static String[] ButtonLogic(Double checkScore) {
             String returnColor;
-            String returnHint;
+            ArrayList<String> hintMap = new ArrayList<>();
+            String returnHint = null;
             if (checkScore >= 1.00) {
                 returnColor = "#1E90FF";
-                returnHint = "You guessed the correct number!";
+                hintMap.add("You guessed the correct number!");
             } else if (checkScore >= 0.50) {
                 returnColor = "#00C851";
-                returnHint = "A digit was found in the correct location and correct value.";
+                hintMap.add("A digit was found in the correct location and correct value.");
             } else if (checkScore >= 0.25) {
                 returnColor = "#007E33";
-                returnHint = "A digit was found in the number.";
+                hintMap.add("A digit was found in the number.");
             } else if (checkScore >= 0.10) {
                 returnColor = "#FFBB33";
-                returnHint = "A digit in your guess matches the property of another digit.";
+                hintMap.add("A digit in your guess matches the property of another digit.");
             } else if (checkScore >= 0.05) {
                 returnColor = "#FF4444";
-                returnHint = "A digit appears more than once in the target number.";
+                hintMap.add("A digit appears more than once in the target number.");
             } else if (checkScore >= 0.01) {
                 returnColor = "#AA66CC";
-                returnHint = "If a digit is prime.";
+                hintMap.add("If a digit is prime.");
             } else {
                 returnColor = "#B0B0B0";
-                returnHint = "Sorry, no points where applied.";
+                hintMap.add("Sorry, no points where applied.");
+            }
+            Map<String, Integer> repeatedElements = countRepeatedElements(hintMap);
+            System.out.println(repeatedElements);
+            for (Map.Entry<String, Integer> entry : repeatedElements.entrySet()) {
+                returnHint = String.format("%s (x%s)", entry.getKey(), entry.getValue());
             }
             String[] returnString = { "-fx-background-color: " + returnColor + ";", returnHint };
             return returnString;
+        }
+
+        private static <T> Map<T, Integer> countRepeatedElements(ArrayList<T> list) {
+            Map<T, Integer> frequencies = new HashMap<>();
+            for (T element : list) {
+                frequencies.put(element, frequencies.getOrDefault(element, 0) + 1);
+            }
+            return frequencies;
         }
     }
 
@@ -297,6 +311,6 @@ public class SidePanels {
         MenuFile.displayBox.setStyle("-fx-background-color: #e9ecef;");
         HBox.setHgrow(MenuFile.displayBox, Priority.ALWAYS);
         VBox.setVgrow(MenuFile.displayBox, Priority.ALWAYS);
-        
+
     }
 }
