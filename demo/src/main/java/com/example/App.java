@@ -83,10 +83,10 @@ public class App extends Application {
     public void start(Stage stage) throws IOException {
         MenuFile menuFile = new MenuFile();
         mainRoot = menuFile.MainMenu();
+        main_stage = stage;
         scene = new Scene(mainRoot, 900, 600);
         stage.setScene(scene);
         stage.show();
-        main_stage = stage;
     }
 
     public static void main(String[] args) {

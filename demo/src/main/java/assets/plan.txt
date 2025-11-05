@@ -1,7 +1,19 @@
-1 - In the level display add level goals and goal segments. The goal segments display each part of the level including the challenges.
-2 - Add a function to the history segments to track back in history.
-3 - Add a function to the level goal segments to track back in history. (optional)
-4 - Allow the player to progress when the guess the code correctly.
-5 + Find out how to change senses. (Impotent.)
-6 + Add a pause button or main menu return function.
-7 - Fix the function of the clear and back button and fix the check function.
+# goals
+1 - Add a function to the history segments to track back in history and display the value on the main display. And write any changes to that history.
+2 - Add a function to the level goal segments to track back in levels. (optional)
+3 - Fix the checkCode function to make sure multiple attempts is not always marked as correct.
+4 - Try not to overlap point types earned and specify what has been added.
+5 - Animate changing the code hash and remove all history list.
+6 - Animate level changes.
+7 - Add some indication to show active subLevel and level.
+8 - Create idea for challenge levels.
+
+# Denied
+1 * Allow the player to progress when the guess the code correctly. | Specifying into smaller chunks.
+
+# Completed
+1 + Find out how to change senses. (Impotent.)
+2 + Add a pause button or main menu return function.
+3 + Fix the function of the clear and back button and fix the check function.
+4 + In the level display add level goals and goal segments. The goal segments display each part of the level including the challenges.
+5 + Fix the generate code function. (Impotent)
