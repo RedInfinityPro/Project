@@ -1,10 +1,11 @@
 package com.example;
 
 import java.util.ArrayList;
-
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
@@ -17,7 +18,6 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.util.Duration;
 
 public class MenuFile {
     public static GridPane menuPane;
@@ -26,6 +26,7 @@ public class MenuFile {
     private static Label displayLabel;
     private static final String saveFile_PATH = "demo\\src\\main\\java\\assets\\saveFile.json";
     private static final String tutorial_PATH = "demo\\src\\main\\java\\assets\\tutorial.txt";
+    private ToggleButton toggleLight;
 
     public void ClearMenuScreen(String customizeTitle) {
         menuPane.getChildren().clear();
@@ -61,17 +62,17 @@ public class MenuFile {
         menuPane.setHgap(15);
         menuPane.setVgap(12);
         menuPane.setPadding(new Insets(40));
-        menuPane.setStyle(App.menuPane_colors + "-fx-background-radius: 10;");
+        menuPane.setStyle(App.menuPane_color + "-fx-background-radius: 10;");
         // display elements
         ClearMenuScreen("Welcome");
         BuildMenu();
         displayBox = new VBox(menuPane);
         displayBox.setAlignment(Pos.CENTER);
         displayBox.setPadding(new Insets(40));
-        displayBox.setStyle(App.displayBox_colors);
+        displayBox.setStyle(App.displayBox_color);
         mainBox = new HBox(displayBox);
         mainBox.setAlignment(Pos.CENTER);
-        mainBox.setStyle(App.mainBox_colors);
+        mainBox.setStyle(App.mainBox_color);
         HBox.setHgrow(displayBox, Priority.ALWAYS);
         VBox.setVgrow(displayBox, Priority.ALWAYS);
         return mainBox;
@@ -141,8 +142,6 @@ public class MenuFile {
         // read jason file
         VBox settingsContent = new VBox(25);
         settingsContent.setPadding(new Insets(10, 0, 20, 0));
-        VBox musicSection = createSettingsSection("Music Volume", 100, "music_volume");
-        VBox soundSection = createSettingsSection("Sound Effect Volume", 100, "sound_volume");
         HBox lightSection = new HBox(15);
         lightSection.setAlignment(Pos.CENTER_LEFT);
         lightSection.setPadding(new Insets(15, 20, 15, 20));
@@ -151,13 +150,26 @@ public class MenuFile {
         Label lightDesc = new Label("Toggle between light and dark theme");
         lightDesc.setStyle("-fx-text-fill: #6c757d; -fx-font-size: 14px;");
         lightLabels.getChildren().addAll(lightLabel, lightDesc);
-        ToggleButton toggleLight = new ToggleButton("off");
+        toggleLight = new ToggleButton();
         toggleLight.setPrefWidth(80);
         toggleLight.setPrefHeight(40);
         toggleLight.setStyle(
                 "-fx-background-color: gray; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-cursor: hand;");
-        toggleLight.selectedProperty().addListener((obs, old, isOn) -> {
-            if (isOn) {
+        // Set initial state
+        if (App.isDarkMode) {
+            toggleLight.setText("ON");
+            toggleLight.setStyle(
+                    "-fx-background-color: red; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-cursor: hand;");
+        } else {
+            toggleLight.setText("OFF");
+            toggleLight.setStyle(
+                    "-fx-background-color: gray; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-cursor: hand;");
+        }
+        toggleLight.setOnAction(e -> {
+            App.isDarkMode = !App.isDarkMode;
+            App.updateTheme();
+            App.applyTheme();
+            if (App.isDarkMode) {
                 toggleLight.setText("ON");
                 toggleLight.setStyle(
                         "-fx-background-color: red; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-cursor: hand;");
@@ -168,7 +180,7 @@ public class MenuFile {
             }
         });
         lightSection.getChildren().addAll(lightLabels, toggleLight);
-        settingsContent.getChildren().addAll(musicSection, soundSection, lightSection);
+        settingsContent.getChildren().add(lightSection);
         menuPane.add(settingsContent, 0, 2, 2, 1);
         Button backButton = CustomButton("Main Menu", "main_menu");
         menuPane.add(backButton, 0, 3, 2, 1);
@@ -241,18 +253,19 @@ public class MenuFile {
         customButton.setPrefHeight(65);
         customButton.setPrefWidth(200);
         customButton.setPadding(new Insets(0, 20, 0, 30));
-        String baseColor = argument.equals("Clear") ? "white" : "white";
-        String hoverColor = argument.equals("Clear") ? "white" : "darkgray";
-        customButton.setStyle("-fx-background-color: " + baseColor
-                + "; -fx-text-fill: black; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);");
-        customButton.setOnMouseEntered(e -> customButton.setStyle("-fx-background-color: " + hoverColor
-                + "; -fx-text-fill: black; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 2);"));
-        customButton.setOnMouseExited(e -> customButton.setStyle("-fx-background-color: " + baseColor
-                + "; -fx-text-fill: black; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);"));
+        String baseStyle = "-fx-background-color: linear-gradient(to right, #667eea, #764ba2); -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 12; -fx-border-radius: 12; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(102, 126, 234, 0.4), 8, 0, 0, 4);";
+        String hoverStyle = "-fx-background-color: linear-gradient(to right, #764ba2, #667eea); -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 12; -fx-border-radius: 12; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(118, 75, 162, 0.6), 12, 0, 0, 6);";
+
+        customButton.setStyle(baseStyle);
+        customButton.setOnMouseEntered(e -> {
+            customButton.setStyle(hoverStyle);
+            AnimationUtils.scaleButton(customButton);
+        });
+        customButton.setOnMouseExited(e -> customButton.setStyle(baseStyle));
         customButton.setOnAction(e -> {
             ClearMenuScreen("");
             if (argument.equals("start_game")) {
-                CenterPanel centerPanel = new CenterPanel(100, 1, 1, 0, 0);
+                CenterPanel centerPanel = new CenterPanel(0, 1, 1, 0, 0);
                 centerPanel.BuildCenter(menuPane);
             }
             if (argument.equals("load_game")) {
@@ -265,11 +278,16 @@ public class MenuFile {
                 BuildTutorial();
             }
             if (argument.equals("exit_game")) {
+                AnimationUtils.fadein(App.scene.getRoot(), 500);
                 App.main_stage.close();
             }
             if (argument.equals("main_menu")) {
                 BuildMenu();
             }
+        });
+        AnimationUtils.fadein(customButton, 400);
+        customButton.setOnMouseEntered(e -> {
+            AnimationUtils.pulse(customButton, 200);
         });
         return customButton;
     }

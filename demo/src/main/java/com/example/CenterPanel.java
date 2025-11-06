@@ -4,21 +4,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
-import com.example.SidePanels.CreateLevelSection;
-
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
-import javafx.util.Duration;
 
 public class CenterPanel {
     // setup
@@ -75,7 +68,7 @@ public class CenterPanel {
         MenuFile.displayBox = new VBox(menuPane);
         MenuFile.displayBox.setAlignment(Pos.CENTER);
         MenuFile.displayBox.setPadding(new Insets(40));
-        MenuFile.displayBox.setStyle("-fx-background-color: #e9ecef;");
+        MenuFile.displayBox.setStyle(App.displayBox_color);
         HBox.setHgrow(MenuFile.displayBox, Priority.ALWAYS);
         VBox.setVgrow(MenuFile.displayBox, Priority.ALWAYS);
         MenuFile.mainBox.getChildren().addAll(SidePanels.LevelPane(), MenuFile.displayBox, SidePanels.HistoryPane());

@@ -7,17 +7,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
 import javafx.application.Platform;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.geometry.Side;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 
 public class SubLevel {
@@ -57,7 +52,7 @@ public class SubLevel {
     private String generateCode() {
         CodeConfig_init();
         Long min = 0L;
-        Long max = 9L * CenterPanel.level;
+        Long max = 9L * (CenterPanel.level + 1);
         Long randomNumber = min + (long) (Math.random() * ((max - min) + 1));
         return CodeConfig.encrypt(randomNumber.toString());
     }
@@ -65,7 +60,7 @@ public class SubLevel {
     public void BuildCenter(GridPane menuPane) {
         // Display points
         VBox topDisplay = new VBox(8);
-        topDisplay.setStyle("-fx-background-color: #ffffff; -fx-background-radius: 10;");
+        topDisplay.setStyle(App.levelPane_color);
         displayPoints = new Label();
         Platform.runLater(() -> {
             CenterPanel.ChangeLevelValues();
@@ -114,6 +109,7 @@ public class SubLevel {
         Button btnBackspace = createElementButton("←", "Backspace");
         btnClear.setStyle(getButtonStyle("#ffc107", "#e0a800"));
         menuPane.add(btnBackspace, 2, 6);
+        AnimationUtils.fadein(menuPane, 800);
     }
 
     private String getButtonStyle(String bgColor, String hoverColor) {
@@ -126,13 +122,14 @@ public class SubLevel {
         Button btn = new Button(number.toString());
         btn.setPrefWidth(70);
         btn.setPrefHeight(70);
-        btn.setStyle(
-                "-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);");
-        btn.setOnMouseEntered(e -> btn.setStyle(
-                "-fx-background-color: #0056b3; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 2);"));
-        btn.setOnMouseExited(e -> btn.setStyle(
-                "-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);"));
+        String baseStyle = "-fx-background-color: linear-gradient(to bottom, #4facfe, #00f2fe); -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-radius: 15; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(79, 172, 254, 0.4), 6, 0, 0, 3);";
+        String hoverStyle = "-fx-background-color: linear-gradient(to bottom, #00f2fe, #4facfe); -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-radius: 15; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0, 242, 254, 0.6), 10, 0, 0, 5);";
+        btn.setStyle(baseStyle);
+        btn.setOnMouseEntered(e -> btn.setStyle(hoverStyle));
+        btn.setOnMouseExited(e -> btn.setStyle(baseStyle));
+        AnimationUtils.fadein(btn, 400);
         btn.setOnAction(e -> {
+            AnimationUtils.pulse(btn, 200);
             displayString += number.toString();
             displayField.setText(displayString);
         });
@@ -143,15 +140,15 @@ public class SubLevel {
         Button btn = new Button(text);
         btn.setPrefWidth(70);
         btn.setPrefHeight(70);
-        String baseColor = argument.equals("Clear") ? "#e0a800" : "#c82333";
-        String hoverColor = argument.equals("Clear") ? "#c82333" : "#e0a800";
-        btn.setStyle("-fx-background-color: " + baseColor
-                + "; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);");
-        btn.setOnMouseEntered(e -> btn.setStyle("-fx-background-color: " + hoverColor
-                + "; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.2), 4, 0, 0, 2);"));
-        btn.setOnMouseExited(e -> btn.setStyle("-fx-background-color: " + baseColor
-                + "; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 8; -fx-border-radius: 8; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);"));
+        String baseColor = argument.equals("Clear") ? "linear-gradient(to bottom, #fa709a, #fee140)" : "linear-gradient(to bottom, #ff6b6b, #ee5a6f)";
+        String hoverColor = argument.equals("Clear") ? "linear-gradient(to bottom, #fee140, #fa709a)" : "linear-gradient(to bottom, #ee5a6f, #ff6b6b)";
+        String baseStyle = "-fx-background-color: " + baseColor + "; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-radius: 15; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(250, 112, 154, 0.4), 6, 0, 0, 3);";
+        String hoverStyle = "-fx-background-color: " + hoverColor + "; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-radius: 15; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(238, 90, 111, 0.6), 10, 0, 0, 5);";
+        btn.setStyle(baseStyle);
+        btn.setOnMouseEntered(e -> btn.setStyle(hoverStyle));
+        btn.setOnMouseExited(e -> btn.setStyle(baseStyle));
         btn.setOnAction(e -> {
+            AnimationUtils.pulse(btn, 200);
             try {
                 if (argument.equals("Backspace")) {
                     if (!displayString.isEmpty()) {
@@ -187,6 +184,7 @@ public class SubLevel {
                 System.out.println(ex);
             }
         });
+        AnimationUtils.fadein(btn, 400);
         return btn;
     }
 
@@ -233,7 +231,7 @@ public class SubLevel {
         displayPoints.setText(pointsText);
         return result;
     }
- 
+
     private static ScoreResult CalculatedScoreDetailed(String randomNumber, String guess) {
         ScoreResult result = new ScoreResult();
         Set<Integer> matchedPositions = new HashSet<>();

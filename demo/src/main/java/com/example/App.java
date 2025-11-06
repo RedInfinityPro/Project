@@ -1,68 +1,17 @@
 package com.example;
 
-// import org.json.simple.JSONObject;
+import javafx.animation.FadeTransition;
+import javafx.animation.SequentialTransition;
 import javafx.application.Application;
-import javafx.beans.Observable;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener.Change;
-import javafx.collections.ObservableList;
-import javafx.fxml.FXMLLoader;
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Slider;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextFormatter;
-import javafx.scene.control.ToggleButton;
-import javafx.scene.control.Tooltip;
-import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.SecureRandom;
-import java.security.spec.KeySpec;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Dictionary;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.function.UnaryOperator;
+import java.text.Annotation;
 
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
-
-import org.json.simple.*;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
@@ -75,11 +24,15 @@ public class App extends Application {
     private static Parent mainRoot;
     // font
     public static final Font title_Font = Font.font("Arial", FontWeight.BOLD, 18);
-    public static final Font header_Font = Font.font("Arial", FontWeight.BOLD, 16);
+    public static final Font header_Font = Font.font("Arial", FontWeight.SEMI_BOLD, 16);
     public static final Font normal_Font = Font.font("Arial", FontWeight.NORMAL, 12);
-    public static String menuPane_colors = "-fx-background-color: #ffffff; ";
-    public static String displayBox_colors = "-fx-background-color: #e9ecef; ";
-    public static String mainBox_colors = "-fx-background-color: #e9ecef; ";
+    // style
+    public static boolean isDarkMode = false;
+    public static String menuPane_color = "-fx-background-color: linear-gradient(to bottom right, #ffffff, #f8f9fa); ";
+    public static String displayBox_color = "-fx-background-color: linear-gradient(to bottom, #e9ecef, #dee2e6); ";
+    public static String mainBox_color = "-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%); ";
+    public static String levelPane_color = "-fx-background: rgba(255, 255, 255, 0.1); -fx-background-color: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,249,250,0.9)); -fx-background-radius: 15;";
+    public static String historyPane_color = "-fx-background: rgba(255, 255, 255, 0.1); -fx-background-color: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,249,250,0.9)); -fx-background-radius: 15;";
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -88,7 +41,57 @@ public class App extends Application {
         main_stage = stage;
         scene = new Scene(mainRoot, 900, 600);
         stage.setScene(scene);
+        AnimationUtils.fadein(mainRoot, 800);
         stage.show();
+    }
+
+    public static void updateTheme() {
+        if (isDarkMode) {
+            // Dark theme
+            menuPane_color = "-fx-background-color: linear-gradient(to bottom right, #2c3e50, #34495e); ";
+            displayBox_color = "-fx-background-color: linear-gradient(to bottom, #34495e, #2c3e50); ";
+            mainBox_color = "-fx-background-color: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); ";
+        } else {
+            // Light theme
+            menuPane_color = "-fx-background-color: linear-gradient(to bottom right, #ffffff, #f8f9fa); ";
+            displayBox_color = "-fx-background-color: linear-gradient(to bottom, #e9ecef, #dee2e6); ";
+            mainBox_color = "-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%); ";
+        }
+    }
+
+    // Method to apply theme to current scene
+    public static void applyTheme() {
+        if (MenuFile.mainBox != null) {
+            MenuFile.mainBox.setStyle(mainBox_color);
+            // Animate the theme change
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(200), MenuFile.mainBox);
+            fadeOut.setFromValue(1);
+            fadeOut.setToValue(0.7);
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(200), MenuFile.mainBox);
+            fadeIn.setFromValue(0.7);
+            fadeIn.setToValue(1);
+            SequentialTransition seq = new SequentialTransition(fadeOut, fadeIn);
+            seq.play();
+        }
+        if (MenuFile.displayBox != null) {
+            MenuFile.displayBox.setStyle(displayBox_color);
+        }
+        if (MenuFile.menuPane != null) {
+            String menuStyle = menuPane_color + "-fx-background-radius: 10;";
+            MenuFile.menuPane.setStyle(menuStyle);
+        }
+        // Update side panels if they exist
+        updateSidePanelTheme();
+    }
+
+    private static void updateSidePanelTheme() {
+        if (isDarkMode) {
+            historyPane_color = "-fx-background: rgba(52, 73, 94, 0.9); -fx-background-color: linear-gradient(135deg, rgba(44,62,80,0.9), rgba(52,73,94,0.9)); -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 5);";
+            levelPane_color = "-fx-background: rgba(52, 73, 94, 0.9); -fx-background-color: linear-gradient(135deg, rgba(44,62,80,0.9), rgba(52,73,94,0.9)); -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 5);";
+        } else {
+            historyPane_color = "-fx-background: rgba(255, 255, 255, 0.1); -fx-background-color: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,249,250,0.9)); -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);";
+            levelPane_color = "-fx-background: rgba(255, 255, 255, 0.1); -fx-background-color: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,249,250,0.9)); -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);";
+        }
     }
 
     public static void main(String[] args) {

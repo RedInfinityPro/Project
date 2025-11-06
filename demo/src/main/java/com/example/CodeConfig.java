@@ -1,9 +1,9 @@
 package com.example;
+
 import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.util.ArrayList;
 import java.util.Base64;
-
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -95,7 +95,7 @@ public class CodeConfig {
 
     public static String encrypt(String dataToEncrypt) {
         if (!CodeConfig.isInitialized()) {
-            throw new IllegalStateException("CryptoConfig not initialized");
+            throw new IllegalStateException("Config not initialized");
         }
         
         try {

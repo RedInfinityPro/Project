@@ -4,10 +4,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
-import java.nio.Buffer;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.NoSuchElementException;
 import java.util.Random;
 import java.util.Scanner;
 

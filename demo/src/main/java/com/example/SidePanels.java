@@ -1,37 +1,13 @@
 package com.example;
 
-import java.security.SecureRandom;
-import java.security.spec.KeySpec;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.SecretKeySpec;
-
-import javafx.animation.Animation;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Node;
-import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -39,7 +15,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
-import javafx.util.Duration;
 
 public class SidePanels {
     // history and level
@@ -273,16 +248,17 @@ public class SidePanels {
     public static ScrollPane LevelPane() {
         levelPane = new ScrollPane();
         levelPane.setFitToWidth(true);
-        levelPane.setStyle("-fx-background: #f5f5f5; -fx-background-color: #f5f5f5; -fx-background-radius: 10;");
+        levelPane.setStyle(App.levelPane_color);
         VBox topSection = new VBox(8);
-        topSection.setStyle("-fx-background: #f5f5f5;");
+        topSection.setStyle(App.levelPane_color);
         Label levelTitle = new Label("Levels");
+        levelTitle.setStyle(
+                "-fx-text-fill: gray; -fx-font-size: 20px; -fx-font-weight: bold; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);");
         levelTitle.setFont(App.title_Font);
-        levelTitle.setStyle("-fx-text-fill: #333;");
         levelTitle.setPadding(new Insets(0, 0, 10, 0));
         levelPane_listContainer = new VBox(8);
         levelPane_listContainer.setPadding(new Insets(15));
-        levelPane_listContainer.setStyle("-fx-background-color: #f5f5f5;");
+        levelPane_listContainer.setStyle(App.levelPane_color);
         VBox.setVgrow(levelPane_listContainer, Priority.ALWAYS);
         StackPane mainMenuReturn = new StackPane();
         mainMenuReturn.setStyle(
@@ -303,31 +279,34 @@ public class SidePanels {
         mainMenuReturn.getChildren().add(mainMenuReturn_button);
         topSection.getChildren().addAll(levelTitle, buttonWrapper, levelPane_listContainer);
         BorderPane container = new BorderPane();
-        container.setStyle("-fx-background-color: #f5f5f5;");
+        container.setStyle(App.levelPane_color);
         container.setTop(topSection);
         levelPane.setContent(container);
         levelPane.setMinWidth(250);
         levelPane.prefWidth(250);
         levelPane.setMaxWidth(250);
+        AnimationUtils.fadein(levelPane, 400);
         return levelPane;
     }
 
     public static ScrollPane HistoryPane() {
         historyPane = new ScrollPane();
         historyPane.setFitToWidth(true);
-        historyPane.setStyle("-fx-background: #f5f5f5; -fx-background-color: #f5f5f5; -fx-background-radius: 10;");
+        historyPane.setStyle(App.historyPane_color);
         historyPane_listContainer = new VBox(8);
         historyPane_listContainer.setPadding(new Insets(15));
-        historyPane_listContainer.setStyle("-fx-background-color: #f5f5f5;");
+        historyPane_listContainer.setStyle(App.historyPane_color);
         Label historyTitle = new Label("History");
+        historyTitle.setStyle(
+                "-fx-text-fill: gray; -fx-font-size: 20px; -fx-font-weight: bold; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);");
         historyTitle.setFont(App.title_Font);
-        historyTitle.setStyle("-fx-text-fill: #333;");
         historyTitle.setPadding(new Insets(0, 0, 10, 0));
         VBox container = new VBox(historyTitle, historyPane_listContainer);
-        container.setStyle("-fx-background-color: #f5f5f5;");
+        container.setStyle(App.historyPane_color);
         historyPane.setContent(container);
         historyPane.setMinWidth(250);
         historyPane.prefWidth(250);
+        AnimationUtils.fadein(historyPane, 400);
         return historyPane;
     }
 
