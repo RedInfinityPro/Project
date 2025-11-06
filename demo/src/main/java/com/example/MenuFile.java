@@ -180,32 +180,10 @@ public class MenuFile {
             }
         });
         lightSection.getChildren().addAll(lightLabels, toggleLight);
-        settingsContent.getChildren().add(lightSection);
+        settingsContent.getChildren().addAll(lightSection);
         menuPane.add(settingsContent, 0, 2, 2, 1);
         Button backButton = CustomButton("Main Menu", "main_menu");
         menuPane.add(backButton, 0, 3, 2, 1);
-    }
-
-    private VBox createSettingsSection(String title, double defaultValue, String arguments) {
-        VBox section = new VBox(10);
-        section.setPadding(new Insets(15, 20, 15, 20));
-        Label titleLabel = new Label(title);
-        HBox sliderBox = new HBox(15);
-        sliderBox.setAlignment(Pos.CENTER_LEFT);
-        Slider slider = new Slider(0, 100, defaultValue);
-        slider.setShowTickLabels(true);
-        slider.setShowTickMarks(true);
-        slider.setMajorTickUnit(25);
-        slider.setMinorTickCount(5);
-        slider.setPrefWidth(300);
-        HBox.setHgrow(slider, Priority.ALWAYS);
-        Label valueLabel = new Label(String.format("%.0f%%", defaultValue));
-        slider.valueProperty().addListener((obs, oldVal, newVal) -> {
-            valueLabel.setText(String.format("%.0f%%", newVal.doubleValue()));
-        });
-        sliderBox.getChildren().addAll(slider, valueLabel);
-        section.getChildren().addAll(titleLabel, sliderBox);
-        return section;
     }
 
     private void BuildTutorial() {

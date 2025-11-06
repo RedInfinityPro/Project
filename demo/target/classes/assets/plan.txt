@@ -1,22 +1,26 @@
 # goals
-1 - Add a function to the history segments to track back in history and display the value on the main display. And write any changes to that history.
+1 - Add a function to the history segments to track back in history and display the value on the main display. And write any changes to that history. (Important)
 2 - Add a function to the level goal segments to track back in levels. (optional)
-5 - Animate changing the code hash and remove all history list.
-8 - Add some indication to show active subLevel and level.
-9 - Create an idea for the challenge levels.
-11 - Fix scrollbar UI for tutorials and add a scrollbar for history elements text.
-12 - Fix the hint button system, an issue was found in the missing hint button or it was found adding more than one non-found points. 
+3 - Add some indication to show active subLevel and level. (Important)
+4 - Create an idea for the challenge levels. (Important)
+5 - Fix scrollbar UI for tutorials and add a scrollbar for history elements text.
+6 - Fix the hint button system, an issue was found in the missing hint button or it was found adding more than one non-found points. (Important)
+7 - Fix text UI to work with dark mode and light mode.
+9 - Collapse the white box when the level and history section is collapsed.
+10 - Add tooltip to the history section title.
+11 - Center title for history and level pains.
 
 # Denied
 1 * Allow the player to progress when the guess the code correctly. | Specifying into smaller chunks.
-4 * Try not to overlap point types earned and specify what has been added. | Specifying into smaller chunks.
+2 * Try not to overlap point types earned and specify what has been added. | Specifying into smaller chunks.
+3 * Animate changing the code hash and remove all history list. | Already have animations for new windows, removed for speeding up the project.
 
 # Completed
-1 + Find out how to change senses. (Impotent.)
+1 + Find out how to change senses.
 2 + Add a pause button or main menu return function.
 3 + Fix the function of the clear and back button and fix the check function.
 4 + In the level display add level goals and goal segments. The goal segments display each part of the level including the challenges.
-5 + Fix the generate code function. (Impotent)
+5 + Fix the generate code function.
 6 + Fix the checkCode function to make sure multiple attempts is not always marked as correct.
 7 + For every point threshold meat, it adds new button element to the history segments. If it repeats any previous threshold meat it increase the multiplier to show how where the points are coming from.
 8 + Animate level changes.

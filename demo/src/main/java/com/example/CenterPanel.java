@@ -3,8 +3,6 @@ package com.example;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
-
-import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;

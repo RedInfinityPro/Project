@@ -5,13 +5,9 @@ import javafx.animation.SequentialTransition;
 import javafx.application.Application;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.ScrollPane;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
 import java.io.IOException;
-import java.text.Annotation;
-
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 
@@ -86,9 +82,11 @@ public class App extends Application {
 
     private static void updateSidePanelTheme() {
         if (isDarkMode) {
+            // Dark theme
             historyPane_color = "-fx-background: rgba(52, 73, 94, 0.9); -fx-background-color: linear-gradient(135deg, rgba(44,62,80,0.9), rgba(52,73,94,0.9)); -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 5);";
             levelPane_color = "-fx-background: rgba(52, 73, 94, 0.9); -fx-background-color: linear-gradient(135deg, rgba(44,62,80,0.9), rgba(52,73,94,0.9)); -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 5);";
         } else {
+            // Light theme
             historyPane_color = "-fx-background: rgba(255, 255, 255, 0.1); -fx-background-color: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,249,250,0.9)); -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);";
             levelPane_color = "-fx-background: rgba(255, 255, 255, 0.1); -fx-background-color: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,249,250,0.9)); -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);";
         }
