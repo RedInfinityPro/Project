@@ -9,10 +9,12 @@ import java.util.Map;
 import java.util.Set;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class SubLevel {
@@ -28,7 +30,7 @@ public class SubLevel {
     // display
     private CodeConfig codeConfig;
     private TextField codeField;
-    private TextField displayField;
+    private static TextField displayField;
     public static Label displayPoints;
 
     SubLevel(Integer wrongPoints, Double points) {
@@ -52,7 +54,12 @@ public class SubLevel {
     private String generateCode() {
         CodeConfig_init();
         Long min = 0L;
-        Long max = 9L * (CenterPanel.level + 1);
+        Long max = 10L;
+        if (CenterPanel.level == 0) {
+            max = 10L;
+        } else {
+            max = (long) Math.pow(10, CenterPanel.level);
+        }
         Long randomNumber = min + (long) (Math.random() * ((max - min) + 1));
         return CodeConfig.encrypt(randomNumber.toString());
     }
@@ -140,10 +147,14 @@ public class SubLevel {
         Button btn = new Button(text);
         btn.setPrefWidth(70);
         btn.setPrefHeight(70);
-        String baseColor = argument.equals("Clear") ? "linear-gradient(to bottom, #fa709a, #fee140)" : "linear-gradient(to bottom, #ff6b6b, #ee5a6f)";
-        String hoverColor = argument.equals("Clear") ? "linear-gradient(to bottom, #fee140, #fa709a)" : "linear-gradient(to bottom, #ee5a6f, #ff6b6b)";
-        String baseStyle = "-fx-background-color: " + baseColor + "; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-radius: 15; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(250, 112, 154, 0.4), 6, 0, 0, 3);";
-        String hoverStyle = "-fx-background-color: " + hoverColor + "; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-radius: 15; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(238, 90, 111, 0.6), 10, 0, 0, 5);";
+        String baseColor = argument.equals("Clear") ? "linear-gradient(to bottom, #fa709a, #fee140)"
+                : "linear-gradient(to bottom, #ff6b6b, #ee5a6f)";
+        String hoverColor = argument.equals("Clear") ? "linear-gradient(to bottom, #fee140, #fa709a)"
+                : "linear-gradient(to bottom, #ee5a6f, #ff6b6b)";
+        String baseStyle = "-fx-background-color: " + baseColor
+                + "; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-radius: 15; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(250, 112, 154, 0.4), 6, 0, 0, 3);";
+        String hoverStyle = "-fx-background-color: " + hoverColor
+                + "; -fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold; -fx-background-radius: 15; -fx-border-radius: 15; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(238, 90, 111, 0.6), 10, 0, 0, 5);";
         btn.setStyle(baseStyle);
         btn.setOnMouseEntered(e -> btn.setStyle(hoverStyle));
         btn.setOnMouseExited(e -> btn.setStyle(baseStyle));
@@ -157,25 +168,28 @@ public class SubLevel {
                     }
                 }
                 if (argument.equals("Clear")) {
-                    // get current time
-                    LocalDateTime myDateObj = LocalDateTime.now();
-                    DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-                    String formattedDate = myDateObj.format(myFormatObj);
-                    // commit history
+                    LocalDateTime now = LocalDateTime.now();
+                    DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+                    String newTimeKey = now.format(fmt);
                     SidePanels.subHistoryList.add(displayString);
-                    // calculate scores for each entry
                     ArrayList<ScoreResult> scoreResults = new ArrayList<>();
                     double totalRoundScore = 0.0;
                     for (String entry : SidePanels.subHistoryList) {
-                        ScoreResult result = CheckCodeDetailed(entry);
-                        scoreResults.add(result);
-                        totalRoundScore += result.totalScore;
+                        ScoreResult sr = CalculatedScoreDetailed(codeConfig.decrypt(codeValue), displayString);
+                        scoreResults.add(sr);
+                        totalRoundScore += sr.totalScore;
                     }
-                    // build history section
-                    SidePanels.historyPane_listContainer.getChildren()
-                            .add(SidePanels.createHistorySection.BuildHistorySection(formattedDate, scoreResults));
-                    SidePanels.historyDict.put(formattedDate, new ArrayList<>(SidePanels.subHistoryList));
-                    SidePanels.historyScoreDict.put(formattedDate, scoreResults);
+                    // If currently editing an old session → make a new one
+                    if (SidePanels.activeSessionKey != null
+                            && SidePanels.historyDict.containsKey(SidePanels.activeSessionKey)) {
+                        System.out.println("Editing existing session; creating a new history branch...");
+                        SidePanels.activeSessionKey = null; // clear current editing state
+                    }
+                    // Add as a *new* history element
+                    SidePanels.historyDict.put(newTimeKey, new ArrayList<>(SidePanels.subHistoryList));
+                    SidePanels.historyScoreDict.put(newTimeKey, scoreResults);
+                    VBox newSection = SidePanels.createHistorySection.BuildHistorySection(newTimeKey, scoreResults);
+                    SidePanels.historyPane_listContainer.getChildren().add(0, newSection);
                     SidePanels.subHistoryList.clear();
                     displayString = "";
                 }
@@ -273,7 +287,45 @@ public class SubLevel {
                 result.addThreshold("Prime_Exists", 1);
             }
         }
+
+        if (result.totalScore <= 0) {
+            result.addThreshold("Other", 1);
+        }
         result.totalScore = Math.min(result.totalScore, 1.00);
         return result;
+    }
+
+    public static void loadHistorySession(String timeKey, String item) {
+        try {
+            ArrayList<String> oldEntries = SidePanels.historyDict.getOrDefault(timeKey, new ArrayList<>());
+            ArrayList<ScoreResult> oldScores = SidePanels.historyScoreDict.getOrDefault(timeKey, new ArrayList<>());
+            if (oldEntries.isEmpty()) {
+                System.out.println("No history found for key: " + timeKey);
+                return;
+            }
+            for (String entry : oldEntries) {
+                if (entry.equals(item)) {
+                    displayField.setText(entry);
+                    break;
+                }
+            }
+            // Remove old card if editing same session
+            for (Node node : SidePanels.historyPane_listContainer.getChildren()) {
+                if (node instanceof VBox) {
+                    VBox box = (VBox) node;
+                    Label timeLabel = (Label) ((VBox) ((HBox) box.getChildren().get(0)).getChildren().get(1))
+                            .getChildren().get(1);
+                    if (timeLabel != null && timeLabel.getText().equals(timeKey)) {
+                        SidePanels.historyPane_listContainer.getChildren().remove(box);
+                        break;
+                    }
+                }
+            }
+            // Re-add the current section (so it moves to the top)
+            VBox rebuilt = SidePanels.createHistorySection.BuildHistorySection(timeKey, oldScores);
+            SidePanels.historyPane_listContainer.getChildren().add(0, rebuilt);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -1,19 +1,15 @@
 # goals
-1 - Add a function to the history segments to track back in history and display the value on the main display. And write any changes to that history. (Important)
-2 - Add a function to the level goal segments to track back in levels. (optional)
-3 - Add some indication to show active subLevel and level. (Important)
-4 - Create an idea for the challenge levels. (Important)
-5 - Fix scrollbar UI for tutorials and add a scrollbar for history elements text.
-6 - Fix the hint button system, an issue was found in the missing hint button or it was found adding more than one non-found points. (Important)
-7 - Fix text UI to work with dark mode and light mode.
-9 - Collapse the white box when the level and history section is collapsed.
-10 - Add tooltip to the history section title.
-11 - Center title for history and level pains.
+1 - Add a function to the level goal segments to track back in levels. (optional)
+2 - Add some indication to show active subLevel and level. (Important)
+3 - Create an idea for the challenge levels. (Important)
+4 - Fix the hint button system, an issue was found in the missing hint button or it was found adding more than one non-found points. (Important)
+5 - fix subhistory list UI. scrollbar is always viable.
 
 # Denied
 1 * Allow the player to progress when the guess the code correctly. | Specifying into smaller chunks.
 2 * Try not to overlap point types earned and specify what has been added. | Specifying into smaller chunks.
 3 * Animate changing the code hash and remove all history list. | Already have animations for new windows, removed for speeding up the project.
+4 * Add tooltip to the history section title. | Not possible with correct setup.
 
 # Completed
 1 + Find out how to change senses.
@@ -25,3 +21,8 @@
 7 + For every point threshold meat, it adds new button element to the history segments. If it repeats any previous threshold meat it increase the multiplier to show how where the points are coming from.
 8 + Animate level changes.
 9 + Animate window changes.
+10 + Center title for history and level pains.
+11 + Fix text UI to work with dark mode and light mode.
+12 + Fix scrollbar UI for tutorials and add a scrollbar for history elements text.
+13 + Collapse the white box when the level and history section is collapsed.
+14 + Add a function to the history segments to track back in history and display the value on the main display. And write any changes to that history.

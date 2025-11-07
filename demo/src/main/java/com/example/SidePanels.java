@@ -23,6 +23,7 @@ public class SidePanels {
     public static Map<String, ArrayList<SubLevel.ScoreResult>> historyScoreDict = new HashMap<>();
     public static Map<String, ArrayList<String>> levelDict = new HashMap<>();
     public static ArrayList<String> subLevelList = new ArrayList<>();
+    public static String activeSessionKey = null;
     // display
     public static VBox historyPane_listContainer;
     public static VBox levelPane_listContainer;
@@ -92,14 +93,27 @@ public class SidePanels {
                 emptyLabel.setStyle("-fx-text-fill: #adb5bd; -fx-font-style: italic;");
                 subList.getChildren().add(emptyLabel);
             } else {
-                for (Integer idx=0; idx<items.size(); idx++) {
+                for (Integer idx = 0; idx < items.size(); idx++) {
                     String item = items.get(idx);
-                    SubLevel.ScoreResult scoreResult = idx < scoreResults.size() ? scoreResults.get(idx) : new SubLevel.ScoreResult();
+                    SubLevel.ScoreResult scoreResult = idx < scoreResults.size() ? scoreResults.get(idx)
+                            : new SubLevel.ScoreResult();
                     HBox itemEntry = new HBox(10);
                     itemEntry.setStyle("-fx-padding: 4 0 4 10;");
                     Label itemLabel = new Label("• " + item + String.format(" (%.2f pts)", scoreResult.totalScore));
                     itemLabel.setFont(App.normal_Font);
                     itemLabel.setStyle("-fx-text-fill: #495057; -fx-padding: 4 0 4 10;");
+                    ScrollPane scrollPane = new ScrollPane(itemLabel);
+                    scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+                    scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+                    scrollPane.setFitToHeight(true);
+                    scrollPane.setStyle(
+                            "-fx-background-color: transparent; -fx-control-inner-background: transparent; -fx-border-color: transparent; -fx-hbar-policy: always; -fx-padding: 0;");
+                    scrollPane.lookupAll(".scroll-bar").forEach(sb -> {
+                        sb.setStyle("-fx-background-color: transparent; -fx-pref-height: 6px; -fx-background-insets: 0;");
+                    });
+                    scrollPane.lookupAll(".thumb").forEach(thumb -> {
+                        thumb.setStyle("-fx-background-color: darkgray; -fx-background-radius: 3;");
+                    });
                     // Create hint buttons
                     HBox buttonContainer = new HBox(5);
                     for (Map.Entry<String, Integer> threshold : scoreResult.thresholdCounts.entrySet()) {
@@ -111,18 +125,23 @@ public class SidePanels {
                         String[] buttonStyle = ButtonLogic(threshold.getKey());
                         hintButton.setStyle(buttonStyle[0] + " -fx-font-size: 12px; -fx-padding: 0;");
                         Tooltip hint = new Tooltip();
-                        String tooltipText = threshold.getValue() > 1 ? buttonStyle[1] + " (X" + threshold.getValue() + ")" : buttonStyle[1];
+                        String tooltipText = threshold.getValue() > 1
+                                ? buttonStyle[1] + " (X" + threshold.getValue() + ")"
+                                : buttonStyle[1];
                         hint.setText(tooltipText);
                         hintButton.setTooltip(hint);
                         buttonContainer.getChildren().add(hintButton);
                     }
-                    itemEntry.setStyle("-fx-text-fill: #495057; -fx-padding: 4 0 4 10;");
-                    itemEntry.setOnMouseEntered(e -> itemEntry
+                    itemLabel.setStyle("-fx-text-fill: #495057; -fx-padding: 4 0 4 10;");
+                    itemLabel.setOnMouseEntered(e -> itemLabel
                             .setStyle("-fx-background-color: #e9ecef; -fx-padding: 4 0 4 10; -fx-cursor: hand;"));
-                    itemEntry.setOnMouseExited(e -> itemEntry
+                    itemLabel.setOnMouseExited(e -> itemLabel
                             .setStyle("-fx-text-fill: #495057; -fx-padding: 4 0 4 10; -fx-cursor: hand;"));
-                    itemEntry.getChildren().addAll(itemLabel, buttonContainer);
+                    itemEntry.getChildren().addAll(scrollPane, buttonContainer);
                     subList.getChildren().add(itemEntry);
+                    subList.setOnMouseClicked(event -> {
+                        SubLevel.loadHistorySession(time, item);
+                    });
                 }
             }
             header.setOnMouseClicked(e -> toggleSection(section, arrowLabel));
@@ -135,6 +154,7 @@ public class SidePanels {
             VBox subList = (VBox) section.getUserData();
             boolean isVisible = subList.isVisible();
             subList.setVisible(!isVisible);
+            subList.setManaged(!isVisible);
             arrowLabel.setText(isVisible ? "^" : "v");
         }
 
@@ -237,6 +257,7 @@ public class SidePanels {
             VBox subList = (VBox) section.getUserData();
             boolean isVisible = subList.isVisible();
             subList.setVisible(!isVisible);
+            subList.setManaged(!isVisible);
             arrowLabel.setText(isVisible ? "^" : "v");
         }
 
@@ -251,11 +272,15 @@ public class SidePanels {
         levelPane.setStyle(App.levelPane_color);
         VBox topSection = new VBox(8);
         topSection.setStyle(App.levelPane_color);
+        HBox levelTitle_container = new HBox(5);
+        levelTitle_container.setStyle("-fx-background-color: transparent;");
         Label levelTitle = new Label("Levels");
         levelTitle.setStyle(
                 "-fx-text-fill: gray; -fx-font-size: 20px; -fx-font-weight: bold; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);");
         levelTitle.setFont(App.title_Font);
         levelTitle.setPadding(new Insets(0, 0, 10, 0));
+        levelTitle_container.getChildren().add(levelTitle);
+        levelTitle_container.setAlignment(Pos.CENTER);
         levelPane_listContainer = new VBox(8);
         levelPane_listContainer.setPadding(new Insets(15));
         levelPane_listContainer.setStyle(App.levelPane_color);
@@ -277,7 +302,7 @@ public class SidePanels {
             menuFile.BuildMenu();
         });
         mainMenuReturn.getChildren().add(mainMenuReturn_button);
-        topSection.getChildren().addAll(levelTitle, buttonWrapper, levelPane_listContainer);
+        topSection.getChildren().addAll(levelTitle_container, buttonWrapper, levelPane_listContainer);
         BorderPane container = new BorderPane();
         container.setStyle(App.levelPane_color);
         container.setTop(topSection);
@@ -296,12 +321,16 @@ public class SidePanels {
         historyPane_listContainer = new VBox(8);
         historyPane_listContainer.setPadding(new Insets(15));
         historyPane_listContainer.setStyle(App.historyPane_color);
+        HBox historyTitle_container = new HBox(5);
+        historyTitle_container.setStyle("-fx-background-color: transparent;");
         Label historyTitle = new Label("History");
         historyTitle.setStyle(
                 "-fx-text-fill: gray; -fx-font-size: 20px; -fx-font-weight: bold; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);");
         historyTitle.setFont(App.title_Font);
         historyTitle.setPadding(new Insets(0, 0, 10, 0));
-        VBox container = new VBox(historyTitle, historyPane_listContainer);
+        historyTitle_container.getChildren().add(historyTitle);
+        historyTitle_container.setAlignment(Pos.CENTER);
+        VBox container = new VBox(historyTitle_container, historyPane_listContainer);
         container.setStyle(App.historyPane_color);
         historyPane.setContent(container);
         historyPane.setMinWidth(250);

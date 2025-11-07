@@ -17,7 +17,12 @@ import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
+import javafx.scene.text.TextAlignment;
 
 public class MenuFile {
     public static GridPane menuPane;
@@ -37,7 +42,7 @@ public class MenuFile {
         // add label
         displayLabel = new Label(customizeTitle);
         displayLabel.setStyle(
-                "-fx-text-fill: black; -fx-font-size: 40px; -fx-font-weight: bold; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);");
+                "-fx-text-fill: gray; -fx-font-size: 40px; -fx-font-weight: bold; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 2, 0, 0, 1);");
         displayLabel.setAlignment(Pos.CENTER);
         displayLabel.setMaxWidth(Double.MAX_VALUE);
         menuPane.add(displayLabel, 0, 0, 2, 1);
@@ -147,6 +152,7 @@ public class MenuFile {
         lightSection.setPadding(new Insets(15, 20, 15, 20));
         VBox lightLabels = new VBox();
         Label lightLabel = new Label("Light Mode");
+        lightLabel.setStyle("-fx-text-fill: #7b7e81ff; -fx-font-size: 14px;");
         Label lightDesc = new Label("Toggle between light and dark theme");
         lightDesc.setStyle("-fx-text-fill: #6c757d; -fx-font-size: 14px;");
         lightLabels.getChildren().addAll(lightLabel, lightDesc);
@@ -209,21 +215,41 @@ public class MenuFile {
 
     private VBox createTutorialCard(String Title, String description) {
         VBox card = new VBox(8);
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
         card.setPadding(new Insets(15, 20, 15, 20));
         card.setStyle(
                 "-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 4, 0, 0, 2);");
         Label titleLabel = new Label(Title);
+        titleLabel.setPadding(new Insets(1, 20, 15, 20));
         titleLabel.setStyle(
-                "-fx-text-fill: #495057; -fx-font-size: 14px; -fx-font-weight: bold;");
-
-        Label descriptionLabel = new Label(description);
-        descriptionLabel.setStyle(
-                "-fx-text-fill: #6c757d; -fx-font-size: 16px;");
-        scrollPane.setContent(descriptionLabel);
-        card.getChildren().addAll(titleLabel, scrollPane);
+                "-fx-text-fill: #495057; -fx-font-size: 20px; -fx-font-weight: bold;");
+        WrappedTextBox wrappedDescription = new WrappedTextBox(description, 280);
+        wrappedDescription.setStyle("-fx-padding: 0;");
+        card.widthProperty().addListener((obs, oldVal, newVal) -> {
+            wrappedDescription.setWidth(newVal.doubleValue() - 40); // subtract padding
+        });
+        card.getChildren().addAll(titleLabel, wrappedDescription);
         return card;
+    }
+
+    public class WrappedTextBox extends Region {
+        public Text wrappedText;
+
+        public WrappedTextBox(String content, double width) {
+            wrappedText = new Text(content);
+            wrappedText.setWrappingWidth(width);
+            wrappedText.setFill(Color.web("#6c757d")); // match your card style
+            wrappedText.setFont(Font.font("Arial", 16));
+            wrappedText.setTextAlignment(TextAlignment.JUSTIFY);
+            getChildren().add(wrappedText);
+        }
+
+        public void setContent(String content) {
+            wrappedText.setText(content);
+        }
+
+        public void setWidth(double width) {
+            wrappedText.setWrappingWidth(width);
+        }
     }
 
     public Button CustomButton(String text, String argument) {
