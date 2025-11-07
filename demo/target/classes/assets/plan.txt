@@ -1,9 +1,10 @@
 # goals
-1 - Add a function to the level goal segments to track back in levels. (optional)
-2 - Add some indication to show active subLevel and level. (Important)
-3 - Create an idea for the challenge levels. (Important)
-4 - Fix the hint button system, an issue was found in the missing hint button or it was found adding more than one non-found points. (Important)
-5 - fix subhistory list UI. scrollbar is always viable.
+1 - Create an idea for the challenge levels. (Important)
+2 - Add a function to the level goal segments to track back in levels. (optional)
+3 - Add some indication to show active subLevel and level. (Important)
+4 - Change sublevels when user progresses or change to challenge level if progressed to that point. (Important)
+5 - Fix level display. (Important)
+6 - Update tutorial information.
 
 # Denied
 1 * Allow the player to progress when the guess the code correctly. | Specifying into smaller chunks.
@@ -26,3 +27,5 @@
 12 + Fix scrollbar UI for tutorials and add a scrollbar for history elements text.
 13 + Collapse the white box when the level and history section is collapsed.
 14 + Add a function to the history segments to track back in history and display the value on the main display. And write any changes to that history.
+15 + fix subhistory list UI. scrollbar is always viable.
+16 - Fix the hint button system, an issue was found in the missing hint button or it was found adding more than one non-found points.

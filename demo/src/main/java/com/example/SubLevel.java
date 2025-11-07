@@ -288,8 +288,8 @@ public class SubLevel {
             }
         }
 
-        if (result.totalScore <= 0) {
-            result.addThreshold("Other", 1);
+        if (result.thresholdCounts.isEmpty() && result.totalScore <= 0) {
+            result.totalScore = 0.0;
         }
         result.totalScore = Math.min(result.totalScore, 1.00);
         return result;

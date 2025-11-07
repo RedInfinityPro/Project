@@ -269,7 +269,7 @@ public class MenuFile {
         customButton.setOnAction(e -> {
             ClearMenuScreen("");
             if (argument.equals("start_game")) {
-                CenterPanel centerPanel = new CenterPanel(0, 1, 1, 0, 0);
+                CenterPanel centerPanel = new CenterPanel(CenterPanel.level, 1, 1, 0, 0);
                 centerPanel.BuildCenter(menuPane);
             }
             if (argument.equals("load_game")) {

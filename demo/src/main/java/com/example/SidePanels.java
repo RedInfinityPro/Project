@@ -3,8 +3,14 @@ package com.example;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import javafx.application.Platform;
+import javafx.beans.Observable;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -24,6 +30,8 @@ public class SidePanels {
     public static Map<String, ArrayList<String>> levelDict = new HashMap<>();
     public static ArrayList<String> subLevelList = new ArrayList<>();
     public static String activeSessionKey = null;
+    public static String activeLevelKey = null;
+    public static String activeSubItem = null;
     // display
     public static VBox historyPane_listContainer;
     public static VBox levelPane_listContainer;
@@ -107,27 +115,28 @@ public class SidePanels {
                     scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
                     scrollPane.setFitToHeight(true);
                     scrollPane.setStyle(
-                            "-fx-background-color: transparent; -fx-control-inner-background: transparent; -fx-border-color: transparent; -fx-hbar-policy: always; -fx-padding: 0;");
-                    scrollPane.lookupAll(".scroll-bar").forEach(sb -> {
-                        sb.setStyle("-fx-background-color: transparent; -fx-pref-height: 6px; -fx-background-insets: 0;");
-                    });
-                    scrollPane.lookupAll(".thumb").forEach(thumb -> {
-                        thumb.setStyle("-fx-background-color: darkgray; -fx-background-radius: 3;");
-                    });
+                            "-fx-background-color: transparent; -fx-control-inner-background: transparent; -fx-border-color: transparent; -fx-padding: 0;");
                     // Create hint buttons
                     HBox buttonContainer = new HBox(5);
                     for (Map.Entry<String, Integer> threshold : scoreResult.thresholdCounts.entrySet()) {
-                        Button hintButton = new Button();
-                        hintButton.setText("?");
+                        String thresholdKey = threshold.getKey();
+                        if (thresholdKey == null || thresholdKey.isEmpty())
+                            continue;
+                        if (thresholdKey.equals("Other"))
+                            continue;
+                        int count = threshold.getValue() == null ? 0 : threshold.getValue();
+                        if (count <= 0)
+                            continue;
+                        Button hintButton = new Button("?");
                         hintButton.setPrefSize(25, 25);
                         hintButton.setMinSize(25, 25);
                         hintButton.setMaxSize(25, 25);
-                        String[] buttonStyle = ButtonLogic(threshold.getKey());
+                        String[] buttonStyle = ButtonLogic(thresholdKey);
+                        if (buttonStyle == null)
+                            continue;
                         hintButton.setStyle(buttonStyle[0] + " -fx-font-size: 12px; -fx-padding: 0;");
                         Tooltip hint = new Tooltip();
-                        String tooltipText = threshold.getValue() > 1
-                                ? buttonStyle[1] + " (X" + threshold.getValue() + ")"
-                                : buttonStyle[1];
+                        String tooltipText = count > 1 ? buttonStyle[1] + " (X" + count + ")" : buttonStyle[1];
                         hint.setText(tooltipText);
                         hintButton.setTooltip(hint);
                         buttonContainer.getChildren().add(hintButton);
@@ -167,7 +176,7 @@ public class SidePanels {
                     returnHint = "You guessed the correct number!";
                     break;
                 case "Correct_Exacts":
-                    returnColor = "#ff1effff";
+                    returnColor = "#FF00FF"; // valid magenta
                     returnHint = "Correct number already found";
                     break;
                 case "Exists_Exact":
@@ -191,9 +200,8 @@ public class SidePanels {
                     returnHint = "A digit has the same prime state.";
                     break;
                 default:
-                    returnColor = "#B0B0B0";
-                    returnHint = "Sorry, no points where applied.";
-                    break;
+                    // return null to indicate "no button" for unhelpful thresholds like "Other"
+                    return null;
             }
             String[] returnString = { "-fx-background-color: " + returnColor + ";", returnHint };
             return returnString;
@@ -245,6 +253,12 @@ public class SidePanels {
                             .setStyle("-fx-text-fill: #495057; -fx-padding: 4 0 4 10; -fx-cursor: hand;"));
                     itemEntry.getChildren().add(itemLabel);
                     subList.getChildren().add(itemEntry);
+                    Platform.runLater(() -> {
+                        boolean rollBackLevel = CenterPanel.rollBackLevel();
+                        if (rollBackLevel) {
+                            refreshLevelPaneUI();
+                        }
+                    });
                 }
             }
             header.setOnMouseClicked(e -> toggleSection(section, arrowLabel));
@@ -261,8 +275,54 @@ public class SidePanels {
             arrowLabel.setText(isVisible ? "^" : "v");
         }
 
-        public static void LevelSectionUpdate() {
-            // pass
+        public static void refreshLevelPaneUI() {
+            // rebuild levelPane_listContainer content so active highlighting can be
+            // re-applied
+            ObservableList<Node> children = FXCollections.observableArrayList(levelPane_listContainer.getChildren());
+            levelPane_listContainer.getChildren().clear();
+            for (Node n : children) {
+                levelPane_listContainer.getChildren().add(n);
+            }
+            // iterate and update style for active
+            for (Node node : levelPane_listContainer.getChildren()) {
+                if (node instanceof VBox) {
+                    VBox section = (VBox) node;
+                    HBox header = (HBox) section.getChildren().get(0);
+                    Label levelLabel = null;
+                    for (Node hChild : header.getChildren()) {
+                        if (hChild instanceof Label && ((Label) hChild).getText().startsWith("Level")) {
+                            levelLabel = (Label) hChild;
+                            break;
+                        }
+                    }
+                    if (levelLabel != null && activeLevelKey != null && levelLabel.getText().equals(activeLevelKey)) {
+                        header.setStyle(
+                                "-fx-background-color: #dbeafe; -fx-background-radius: 8 8 0 0; -fx-cursor: hand;"); // highlight
+                    } else {
+                        header.setStyle(
+                                "-fx-background-color: #f8f9fa; -fx-background-radius: 8 8 0 0; -fx-cursor: hand;");
+                    }
+                    // also mark active subitem inside
+                    VBox subList = (VBox) section.getUserData();
+                    for (Node entry : subList.getChildren()) {
+                        if (entry instanceof HBox) {
+                            HBox itemEntry = (HBox) entry;
+                            for (Node ieChild : itemEntry.getChildren()) {
+                                if (ieChild instanceof Label) {
+                                    Label itemLabel = (Label) ieChild;
+                                    if (activeSubItem != null && itemLabel.getText().contains(activeSubItem)) {
+                                        itemEntry.setStyle(
+                                                "-fx-background-color: #e6ffed; -fx-padding: 4 0 4 10; -fx-cursor: hand;");
+                                    } else {
+                                        itemEntry.setStyle(
+                                                "-fx-text-fill: #495057; -fx-padding: 4 0 4 10; -fx-cursor: hand;");
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

@@ -1,6 +1,8 @@
 package com.example;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Random;
 import javafx.geometry.Insets;
@@ -14,8 +16,10 @@ import javafx.scene.layout.VBox;
 public class CenterPanel {
     // setup
     public static boolean buildGameFile;
+    public static Deque<String> levelHistoryDeque = new ArrayDeque<>();
     // levels and challenge levels
-    public static Integer level;
+    public static Integer level = 0;
+    public static Integer minLevel = 1;
     public static Integer amount_challengeLevel;
     public static Integer amount_subLevel;
     public static Integer currentLevel_XP;
@@ -36,6 +40,7 @@ public class CenterPanel {
         Integer max = 100;
         if (displayLevel != null) {
             if (currentLevel_XP >= maxLevel_XP) {
+                levelHistoryDeque.push(level.toString());
                 level += 1;
                 currentLevel_XP = 0;
                 maxLevel_XP = min + (int) (Math.random() * ((max - min) + 1));
@@ -52,6 +57,31 @@ public class CenterPanel {
                 SidePanels.subLevelList.clear();
             }
             displayLevel.setText("Level: " + level.toString());
+        }
+    }
+
+    public static boolean rollBackLevel() {
+        if (levelHistoryDeque.isEmpty()) {
+            return false;
+        }
+        try {
+            String prevkey = levelHistoryDeque.pop();
+            if (!SidePanels.levelDict.containsKey(prevkey)) {
+                try {
+                    level = Integer.parseInt(prevkey.replaceAll("[^0-9]", ""));
+                } catch (Exception e) {
+                    level = Math.max(minLevel, level - 1);
+                }
+                CenterPanel.displayLevel.setText("Level: " + level.toString());
+                return true;
+            } else {
+                level = Math.max(minLevel, level - 1);
+                CenterPanel.displayLevel.setText("Level: " + level.toString());
+                return true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
