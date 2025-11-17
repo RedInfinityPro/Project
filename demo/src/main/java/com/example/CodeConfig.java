@@ -89,10 +89,6 @@ public class CodeConfig {
         }
     }
     // tools
-    private void Service() {
-        throw new AssertionError("Cannot instantiate utility class");
-    }
-
     public static String encrypt(String dataToEncrypt) {
         if (!CodeConfig.isInitialized()) {
             throw new IllegalStateException("Config not initialized");

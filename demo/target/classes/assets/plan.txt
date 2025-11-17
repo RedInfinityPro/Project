@@ -1,16 +1,16 @@
 # goals
 1 - Create an idea for the challenge levels. (Important)
-2 - Add a function to the level goal segments to track back in levels. (optional)
-3 - Add some indication to show active subLevel and level. (Important)
-4 - Change sublevels when user progresses or change to challenge level if progressed to that point. (Important)
-5 - Fix level display. (Important)
-6 - Update tutorial information.
+2 - Allow the user to load history elements and add more history items in addition when the player presses clear it updates that history elements time and historyitem_llist to include new items.
+3 - Assign keyboard buttons to main button functions
 
 # Denied
 1 * Allow the player to progress when the guess the code correctly. | Specifying into smaller chunks.
 2 * Try not to overlap point types earned and specify what has been added. | Specifying into smaller chunks.
 3 * Animate changing the code hash and remove all history list. | Already have animations for new windows, removed for speeding up the project.
 4 * Add tooltip to the history section title. | Not possible with correct setup.
+5 * Fix the sublevels panel to show all the level sections and restore prevues state. | Do not restore level sublevels anymore.
+6 * Add a function to the level goal segments to track back in levels. | Do not restore level sublevels anymore.
+7 * Show all prevues level sections even if the user started at a different level. | Not needed anymore.
 
 # Completed
 1 + Find out how to change senses.
@@ -28,4 +28,11 @@
 13 + Collapse the white box when the level and history section is collapsed.
 14 + Add a function to the history segments to track back in history and display the value on the main display. And write any changes to that history.
 15 + fix subhistory list UI. scrollbar is always viable.
-16 - Fix the hint button system, an issue was found in the missing hint button or it was found adding more than one non-found points.
+16 + Fix the hint button system, an issue was found in the missing hint button or it was found adding more than one non-found points.
+17 + Update tutorial information.
+18 + Change sublevels when user progresses or change to challenge level if progressed to that point.
+19 + Fix the sublevels panel to show all the level sections
+20 + Fix Level panel UI to show text on the sublevels sections.
+21 + Fix level display to not be 0 the player can not be level 0.
+22 + Add some indication to show active subLevel and level.
+23 + Allow the user to type numbers anywhere on screen and add elements to the display button and add tie custom keys to custom actions.

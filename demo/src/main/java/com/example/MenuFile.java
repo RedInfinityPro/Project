@@ -1,18 +1,17 @@
 package com.example;
 
 import java.util.ArrayList;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import java.util.HashMap;
+import java.util.Map;
 
-import javafx.application.Platform;
+import javafx.animation.FadeTransition;
+import javafx.animation.SequentialTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.Slider;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
@@ -23,22 +22,23 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
+import javafx.util.Duration;
 
 public class MenuFile {
     public static GridPane menuPane;
     public static HBox mainBox;
     public static VBox displayBox;
     private static Label displayLabel;
-    private static final String saveFile_PATH = "demo\\src\\main\\java\\assets\\saveFile.json";
     private static final String tutorial_PATH = "demo\\src\\main\\java\\assets\\tutorial.txt";
     private ToggleButton toggleLight;
+    private static boolean isDarkMode = false;
+    // style
+    public static String menuPane_color = "-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ffffff, #f8f9fa); ";
+    public static String displayBox_color = "-fx-background-color: linear-gradient(to bottom, #e9ecef, #dee2e6); ";
+    public static String mainBox_color = "-fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #667eea, #764ba2); ";
 
-    public void ClearMenuScreen(String customizeTitle) {
+    private void ClearMenuScreen(String customizeTitle) {
         menuPane.getChildren().clear();
-        if (CenterPanel.buildGameFile) {
-            mainBox.getChildren().remove(SidePanels.historyPane);
-            mainBox.getChildren().remove(SidePanels.levelPane);
-        }
         // add label
         displayLabel = new Label(customizeTitle);
         displayLabel.setStyle(
@@ -51,11 +51,10 @@ public class MenuFile {
     public void BuildMenu() {
         ClearMenuScreen("Welcome");
         Button newGameButton = CustomButton("New Game", "start_game");
-        Button loadGameButton = CustomButton("Load Game", "load_game");
         Button settingsButton = CustomButton("Settings", "settings");
         Button tutorialButton = CustomButton("Tutorial", "tutorial");
         Button exitButton = CustomButton("Exit", "exit_game");
-        Button[] buttons = { newGameButton, loadGameButton, settingsButton, tutorialButton, exitButton };
+        Button[] buttons = { newGameButton, settingsButton, tutorialButton, exitButton };
         for (int i = 0; i < buttons.length; i++) {
             menuPane.add(buttons[i], 0, i + 2, 2, 1);
         }
@@ -67,79 +66,20 @@ public class MenuFile {
         menuPane.setHgap(15);
         menuPane.setVgap(12);
         menuPane.setPadding(new Insets(40));
-        menuPane.setStyle(App.menuPane_color + "-fx-background-radius: 10;");
+        menuPane.setStyle(menuPane_color + "-fx-background-radius: 10;");
         // display elements
         ClearMenuScreen("Welcome");
         BuildMenu();
         displayBox = new VBox(menuPane);
         displayBox.setAlignment(Pos.CENTER);
         displayBox.setPadding(new Insets(40));
-        displayBox.setStyle(App.displayBox_color);
+        displayBox.setStyle(displayBox_color);
         mainBox = new HBox(displayBox);
         mainBox.setAlignment(Pos.CENTER);
-        mainBox.setStyle(App.mainBox_color);
+        mainBox.setStyle(mainBox_color);
         HBox.setHgrow(displayBox, Priority.ALWAYS);
         VBox.setVgrow(displayBox, Priority.ALWAYS);
         return mainBox;
-    }
-
-    private void BuildLoadGame() {
-        displayLabel.setText("Load Game");
-        ScrollPane scrollPane = new ScrollPane();
-        scrollPane.setFitToWidth(true);
-        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
-        VBox savesList = new VBox(12);
-        savesList.setPadding(new Insets(10, 0, 20, 0));
-        int saveCount = 0;
-        // read jason file
-        try {
-            ReadJSON readJSON = new ReadJSON();
-            String stringData = readJSON.getJSONFromFile(saveFile_PATH);
-            JSONParser parser = new JSONParser();
-            Object object = parser.parse(stringData);
-            JSONArray jsonArray = (JSONArray) object;
-            for (Object item : jsonArray) {
-                JSONObject entry = (JSONObject) item;
-                String timeWritten = (String) entry.get("Time_Written");
-                VBox saveCard = createSaveCard(timeWritten, saveCount++);
-                savesList.getChildren().add(saveCard);
-            }
-            if (jsonArray.isEmpty()) {
-                Label noSavesLabel = new Label("So saves found");
-                savesList.getChildren().add(noSavesLabel);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            Label errorLabel = new Label("Error loading save files");
-            savesList.getChildren().add(errorLabel);
-        }
-        scrollPane.setContent(savesList);
-        menuPane.add(scrollPane, 0, 2, 2, 1);
-        Button backButton = CustomButton("Main Menu", "main_menu");
-        menuPane.add(backButton, 0, 3, 2, 1);
-    }
-
-    private VBox createSaveCard(String timeWritten, int index) {
-        VBox card = new VBox(8);
-        card.setPadding(new Insets(15, 20, 15, 20));
-        card.setStyle(
-                "-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 10; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 4, 0, 0, 2);");
-        Label saveLabel = new Label("Save Slot " + (index + 1));
-        saveLabel.setStyle(
-                "-fx-text-fill: #495057; -fx-font-size: 14px; -fx-font-weight: bold;");
-        Label timeLabel = new Label(timeWritten);
-        timeLabel.setStyle(
-                "-fx-text-fill: #6c757d; -fx-font-size: 16px;");
-        card.getChildren().addAll(saveLabel, timeLabel);
-        card.setOnMouseEntered(e -> card.setStyle(
-                "-fx-background-color: #f8f9fa; -fx-background-radius: 10; -fx-border-color: #667eea; -fx-border-width: 2; -fx-border-radius: 10; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(102, 126, 234, 0.3), 8, 0, 0, 4);"));
-        card.setOnMouseExited(e -> card.setStyle(
-                "-fx-background-color: white; -fx-background-radius: 10; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 10; -fx-cursor: hand; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 4, 0, 0, 2);"));
-        card.setOnMouseClicked(e -> {
-            // Load game logic here
-            System.out.println("Loading save: " + timeWritten);
-        });
-        return card;
     }
 
     private void BuildSettings() {
@@ -162,7 +102,7 @@ public class MenuFile {
         toggleLight.setStyle(
                 "-fx-background-color: gray; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-cursor: hand;");
         // Set initial state
-        if (App.isDarkMode) {
+        if (isDarkMode) {
             toggleLight.setText("ON");
             toggleLight.setStyle(
                     "-fx-background-color: red; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-cursor: hand;");
@@ -172,10 +112,10 @@ public class MenuFile {
                     "-fx-background-color: gray; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-cursor: hand;");
         }
         toggleLight.setOnAction(e -> {
-            App.isDarkMode = !App.isDarkMode;
-            App.updateTheme();
-            App.applyTheme();
-            if (App.isDarkMode) {
+            isDarkMode = !isDarkMode;
+            updateTheme();
+            applyTheme();
+            if (isDarkMode) {
                 toggleLight.setText("ON");
                 toggleLight.setStyle(
                         "-fx-background-color: red; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-cursor: hand;");
@@ -231,10 +171,10 @@ public class MenuFile {
         return card;
     }
 
-    public class WrappedTextBox extends Region {
-        public Text wrappedText;
+    private class WrappedTextBox extends Region {
+        private Text wrappedText;
 
-        public WrappedTextBox(String content, double width) {
+        private WrappedTextBox(String content, double width) {
             wrappedText = new Text(content);
             wrappedText.setWrappingWidth(width);
             wrappedText.setFill(Color.web("#6c757d")); // match your card style
@@ -243,7 +183,7 @@ public class MenuFile {
             getChildren().add(wrappedText);
         }
 
-        public void setContent(String content) {
+        private void setContent(String content) {
             wrappedText.setText(content);
         }
 
@@ -252,7 +192,7 @@ public class MenuFile {
         }
     }
 
-    public Button CustomButton(String text, String argument) {
+    private Button CustomButton(String text, String argument) {
         Button customButton = new Button(text);
         customButton.setPrefHeight(65);
         customButton.setPrefWidth(200);
@@ -269,11 +209,11 @@ public class MenuFile {
         customButton.setOnAction(e -> {
             ClearMenuScreen("");
             if (argument.equals("start_game")) {
-                CenterPanel centerPanel = new CenterPanel(CenterPanel.level, 1, 1, 0, 0);
+                Integer playerLevel = 1;
+                Map<String, ArrayList<String>> levelDict = new HashMap<>();
+                ArrayList<String> subLevelList = new ArrayList<>();
+                GameFile centerPanel = new GameFile(playerLevel, levelDict, subLevelList);
                 centerPanel.BuildCenter(menuPane);
-            }
-            if (argument.equals("load_game")) {
-                BuildLoadGame();
             }
             if (argument.equals("settings")) {
                 BuildSettings();
@@ -282,8 +222,8 @@ public class MenuFile {
                 BuildTutorial();
             }
             if (argument.equals("exit_game")) {
-                AnimationUtils.fadein(App.scene.getRoot(), 500);
-                App.main_stage.close();
+                AnimationUtils.fadein(App.primaryScene.getRoot(), 500);
+                App.stage.close();
             }
             if (argument.equals("main_menu")) {
                 BuildMenu();
@@ -294,5 +234,56 @@ public class MenuFile {
             AnimationUtils.pulse(customButton, 200);
         });
         return customButton;
+    }
+
+    private static void updateTheme() {
+        if (isDarkMode) {
+            // Dark theme
+            menuPane_color = "-fx-background-color: linear-gradient(to bottom right, #2c3e50, #34495e); ";
+            displayBox_color = "-fx-background-color: linear-gradient(to bottom, #34495e, #2c3e50); ";
+            mainBox_color = "-fx-background-color: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); ";
+        } else {
+            // Light theme
+            menuPane_color = "-fx-background-color: linear-gradient(to bottom right, #ffffff, #f8f9fa); ";
+            displayBox_color = "-fx-background-color: linear-gradient(to bottom, #e9ecef, #dee2e6); ";
+            mainBox_color = "-fx-background-color: linear-gradient(135deg, #667eea 0%, #764ba2 100%); ";
+        }
+    }
+
+    // Method to apply theme to current scene
+    private static void applyTheme() {
+        if (MenuFile.mainBox != null) {
+            MenuFile.mainBox.setStyle(mainBox_color);
+            // Animate the theme change
+            FadeTransition fadeOut = new FadeTransition(Duration.millis(200), MenuFile.mainBox);
+            fadeOut.setFromValue(1);
+            fadeOut.setToValue(0.7);
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(200), MenuFile.mainBox);
+            fadeIn.setFromValue(0.7);
+            fadeIn.setToValue(1);
+            SequentialTransition seq = new SequentialTransition(fadeOut, fadeIn);
+            seq.play();
+        }
+        if (MenuFile.displayBox != null) {
+            MenuFile.displayBox.setStyle(displayBox_color);
+        }
+        if (MenuFile.menuPane != null) {
+            String menuStyle = menuPane_color + "-fx-background-radius: 10;";
+            MenuFile.menuPane.setStyle(menuStyle);
+        }
+        // Update side panels if they exist
+        updateSidePanelTheme();
+    }
+
+    private static void updateSidePanelTheme() {
+        if (isDarkMode) {
+            // Dark theme
+            App.historyPane_color = "-fx-background: rgba(52, 73, 94, 0.9); -fx-background-color: linear-gradient(135deg, rgba(44,62,80,0.9), rgba(52,73,94,0.9)); -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 5);";
+            App.levelPane_color = "-fx-background: rgba(52, 73, 94, 0.9); -fx-background-color: linear-gradient(135deg, rgba(44,62,80,0.9), rgba(52,73,94,0.9)); -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 10, 0, 0, 5);";
+        } else {
+            // Light theme
+            App.historyPane_color = "-fx-background: rgba(255, 255, 255, 0.1); -fx-background-color: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,249,250,0.9)); -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);";
+            App.levelPane_color = "-fx-background: rgba(255, 255, 255, 0.1); -fx-background-color: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(248,249,250,0.9)); -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);";
+        }
     }
 }

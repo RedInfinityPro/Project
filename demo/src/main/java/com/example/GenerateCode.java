@@ -40,7 +40,7 @@ public class GenerateCode {
         closeInput();
     }
 
-    public String buildString(Integer length) {
+    private String buildString(Integer length) {
         if (length <= 0) {
             throw new IllegalArgumentException("Length must be a positive integer.");
         } else if (length == null) {
